@@ -164,9 +164,18 @@ void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
         colorReset();
         printf("Mano de %s: ", actual->nombre);
         for (int j = 0; j < 13; j++) {
-            printf("%s %d  ", actual->mano[j].color, actual->mano[j].numero);
+            if(isJoker(actual->mano[j].numero))
+                printf("%s J  ", actual->mano[j].color);
+            else
+                printf("%s %d  ", actual->mano[j].color, actual->mano[j].numero);
         }
         printf("\n");
         actual = actual->siguiente;
     }
+}
+
+bool isJoker(int Joker){
+    if(Joker == 99)
+        return 1;
+    return 0;
 }

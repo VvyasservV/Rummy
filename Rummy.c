@@ -56,8 +56,11 @@ int main() {
     // Imprimir la pila
     printf("\nCartas restantes en la pila:\n");
     for (int i = 0; i < pila.top; i++) {
-        printf("%s %d   ", pila.array[i].color, pila.array[i].numero);
-        if(i%26==25){
+        if(isJoker(pila.array[i].numero))
+            printf("%s J   ", pila.array[i].color);
+        else
+            printf("%s %d   ", pila.array[i].color, pila.array[i].numero);
+        if(i%13==0){
             printf("\n");
         }
     }

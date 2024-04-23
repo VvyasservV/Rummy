@@ -15,6 +15,7 @@ void ClearPlayerTurn();
 void PCTurn(int i);
 
 // Funciones para manipular la cola de jugadores
+bool isJoker(int Joker);
 void inicializarPila(struct Pila *pila);
 void inicializarCola(struct ColaJugadores *cola);
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
