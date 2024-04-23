@@ -8,7 +8,7 @@
 #define ROSA "\x1B[38;2;243;39;249m"
 #define NARANJA "\x1B[38;2;249;156;46m"
 #define BLANCO "\x1B[37m"
-
+#define MAX_JUGADORES 4
 // Funciones para limpiar la pantalla
 void colorReset();
 void ClearPlayerTurn();
@@ -25,6 +25,6 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
 // Funciones para crear la baraja y los comodines
 void createInitialDeck(struct Fichas Baraja[4][26]);
 void createJokers(struct Fichas Comodin[2]);
-
+void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores);
 #endif

@@ -29,8 +29,8 @@ void PCTurn(int i){
         system("clear");
     #endif
 }
-
 void createInitialDeck(struct Fichas Baraja[4][26]) {
+    srand(time(NULL));
     int i;
     for(i = 0; i < 26; i++){
         Baraja[0][i].numero = (i%13)+1;
@@ -178,4 +178,37 @@ bool isJoker(int Joker){
     if(Joker == 99)
         return 1;
     return 0;
+}
+
+void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores) {
+    if (totalJugadores <= 0) {
+        printf("Error: totalJugadores es 0 o negativo.\n");
+        return;
+    }
+
+    struct Jugador *jugadores[MAX_JUGADORES];
+    struct Jugador *actual = cola->frente;
+
+    // Cargar todos los jugadores en el arreglo
+    for (int i = 0; i < totalJugadores; i++) {
+        jugadores[i] = actual;
+        actual = actual->siguiente;
+    }
+
+    // Aplicar el algoritmo de Fisher-Yates para mezclar
+    for (int i = totalJugadores - 1; i > 0; i--) {
+        int j = rand() % (i + 1); // Generar un índice aleatorio entre 0 e i
+        // Intercambiar los jugadores en las posiciones i y j
+        struct Jugador *temp = jugadores[i];
+        jugadores[i] = jugadores[j];
+        jugadores[j] = temp;
+    }
+
+    // Reconectar la cola con el nuevo orden
+    for (int i = 0; i < totalJugadores - 1; i++) {
+        jugadores[i]->siguiente = jugadores[i + 1];
+    }
+    jugadores[totalJugadores - 1]->siguiente = jugadores[0];
+    cola->frente = jugadores[0];
+    cola->trasero = jugadores[totalJugadores - 1];
 }

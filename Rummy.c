@@ -49,7 +49,7 @@ int main() {
         sprintf(bot, "Bot %d", i+1);
         insertarJugador(&cola, bot, true);
     }
-
+    mezclarJugadores(&cola, totalJugadores);
     // Repartir cartas a cada jugador y llenar la pila con el resto
     repartirCartasYPila(&cola, Baraja, Comodin, totalJugadores, &pila);
 
