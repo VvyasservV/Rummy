@@ -78,9 +78,27 @@ int main() {
         colorReset();
         printf("Mesa:\n");
         PCTurn(1);
-        //comer(&cola, &pila, &bote);
-        //if(random==0)
-            descartar(&cola, &bote);
+        if(cola.frente->esBot==0){
+            //Logica del user
+            if(cola.frente->jugadorActivo==0){
+                //Primera tirada
+                //jugadaInicial();
+            }else{
+                //Segunda tirada, todas las funciones desbloqueadas
+            }
+        }else{
+            //Logica del bot
+            if(cola.frente->jugadorActivo==0){
+                //Primera tirada
+                //jugadaInicial();
+            }else{
+                //Segunda tirada, todas las funciones desbloqueadas
+            }
+        }
+        /*descartar(&cola, &bote);
+        if(random==0)
+            comer(&cola, &pila, &bote);
+        */
         revisarSalida(&cola, &colaResultados, &jugadoresActuales);
         finTurno(&cola);
     }

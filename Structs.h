@@ -15,9 +15,20 @@ struct Nodo {
     struct Nodo* anterior;
 };
 
-struct ListaDoble {
-    struct Nodo* cabeza;
-    struct Nodo* cola;
+struct CDLL {
+    struct Nodo *cabeza;
+    int tamanio;
+};
+
+struct NodoTablero {
+    struct NodoTablero *siguiente;
+    struct NodoTablero *anterior;
+    struct CDLL *lista;
+};
+
+struct Tablero {
+    struct NodoTablero *cabeza;
+    int tamanio;
 };
 
 struct Pila {

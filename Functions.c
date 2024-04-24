@@ -78,11 +78,6 @@ void inicializarPila(struct Pila *pila) {
     pila->top = 0; // Inicializar el top de la pila en 0
 }
 
-void inicializarJugada(struct ListaDoble* lista) {
-    lista->cabeza = NULL;
-    lista->cola = NULL;
-}
-
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot) {
     struct Jugador *nuevoJugador = (struct Jugador *)malloc(sizeof(struct Jugador));
     if (esBot) {
@@ -183,7 +178,7 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
 
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++) {
-        for (int j = 0; j < 2; j++) { // Cada jugador recibe 13 cartas
+        for (int j = 0; j < 14; j++) { // Cada jugador recibe 14 cartas
             // Verificar si aún quedan cartas en el arreglo barajado
             if (k < totalCartas) {
                 actual->mano[j] = tempBaraja[k++];
@@ -204,7 +199,21 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     }
 }
 
+void seleccionarIndice(struct Jugador *actual){
+    printf("%s", BLANCO);
+    for (int j = 0; j < actual->numCartas; j++) {
+        printf("%d\t",(j+1));
+    }
+}
 
+
+void imprimirManoActual(struct Jugador *actual){
+    for (int j = 0; j < actual->numCartas; j++) {
+        if(isJoker(actual->mano[j].numero))     printf("%sJ\t", actual->mano[j].color);
+        else    printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
+        if(j != 0 && j%15==0)   printf("\n");
+    }
+}
 
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
     struct Jugador *actual = cola->frente;
@@ -212,16 +221,9 @@ void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
     // Imprimir las manos de los jugadores reales
     for (int i = 1; i <= totalJugadores; i++) {
         colorReset();
-        printf("Jugador %s: \nFichas:\t", actual->nombre);
-        if(actual==cola->frente){
-            for (int j = 0; j < actual->numCartas; j++) {
-            if(isJoker(actual->mano[j].numero))
-                printf("%sJ\t", actual->mano[j].color);
-            else
-                printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
-            if(j != 0 && j%15==0)
-                printf("\n");
-            }
+        printf("%s: \nFichas:\t", actual->nombre);
+        if(actual == cola->frente){
+            imprimirManoActual(actual);
         }else{
             for (int j = 0; j < actual->numCartas; j++) {
                 printf("%s*\t", GRIS);
@@ -250,7 +252,6 @@ void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
         bote->top--;
         actual->mano[actual->numCartas++] = bote->array[bote->top];
     }
-    finTurno(cola);s
 }
 
 void descartar(struct ColaJugadores *cola, struct Pila *bote){
@@ -269,9 +270,114 @@ void descartar(struct ColaJugadores *cola, struct Pila *bote){
     }
 }
 
+void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista) {
+    struct NodoTablero *nuevo_nodo = (struct NodoTablero *)malloc(sizeof(struct NodoTablero));
+    nuevo_nodo->lista = nueva_lista;
+
+    if (tablero->cabeza == NULL) {
+        tablero->cabeza = nuevo_nodo;
+        nuevo_nodo->siguiente = nuevo_nodo;
+        nuevo_nodo->anterior = nuevo_nodo;
+    } else {
+        struct NodoTablero *ultimo = tablero->cabeza->anterior;
+        ultimo->siguiente = nuevo_nodo;
+        nuevo_nodo->anterior = ultimo;
+        nuevo_nodo->siguiente = tablero->cabeza;
+        tablero->cabeza->anterior = nuevo_nodo;
+    }
+    tablero->tamanio++;
+}
+
+
+void agregarFichaPorDerecha(struct CDLL *jugada, struct Fichas valor) {
+    struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
+    nuevo_nodo->ficha = valor;
+
+    if (jugada->cabeza == NULL) {
+        jugada->cabeza = nuevo_nodo;
+        jugada->cabeza->siguiente = nuevo_nodo;
+        jugada->cabeza->anterior = nuevo_nodo;
+    } else {
+        struct Nodo *cola = jugada->cabeza->anterior;
+        cola->siguiente = nuevo_nodo;
+        nuevo_nodo->anterior = cola;
+        nuevo_nodo->siguiente = jugada->cabeza;
+        jugada->cabeza->anterior = nuevo_nodo;
+    }
+    jugada->tamanio++;
+}
+
+void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor) {
+    struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
+    nuevo_nodo->ficha = valor;
+
+    if (jugada->cabeza == NULL) {
+        jugada->cabeza = nuevo_nodo;
+        jugada->cabeza->siguiente = nuevo_nodo;
+        jugada->cabeza->anterior = nuevo_nodo;
+    } else {
+        struct Nodo *cola = jugada->cabeza->anterior;
+        nuevo_nodo->siguiente = jugada->cabeza;
+        nuevo_nodo->anterior = cola;
+        cola->siguiente = nuevo_nodo;
+        jugada->cabeza->anterior = nuevo_nodo;
+        jugada->cabeza = nuevo_nodo;
+    }
+    jugada->tamanio++;
+}
+struct Fichas robarPorInicio(struct CDLL *jugada) {
+    if (jugada->cabeza == NULL) {
+        printf("Lista vacía, no se puede robar por inicio.\n");
+        return (struct Fichas){-1, "N/A", false}; // Indicador de error
+    }
+
+    struct Nodo *robar_nodo = jugada->cabeza;
+    struct Fichas resultado = robar_nodo->ficha;
+
+    if (jugada->tamanio == 1) {
+        jugada->cabeza = NULL;
+    } else {
+        jugada->cabeza = robar_nodo->siguiente;
+        jugada->cabeza->anterior = robar_nodo->anterior;
+        robar_nodo->anterior->siguiente = jugada->cabeza;
+    }
+
+    free(robar_nodo);
+    jugada->tamanio--;
+
+    return resultado;
+}
+
+// Función para robar una ficha por el final
+struct Fichas robarPorFinal(struct CDLL *jugada) {
+    if (jugada->cabeza == NULL) {
+        printf("Lista vacía, no se puede robar por final.\n");
+        return (struct Fichas){-1, "N/A", false}; // Indicador de error
+    }
+
+    struct Nodo *ultimo = jugada->cabeza->anterior;
+    struct Fichas resultado = ultimo->ficha;
+
+    if (jugada->tamanio == 1) {
+        jugada->cabeza = NULL;
+    } else {
+        ultimo->anterior->siguiente = jugada->cabeza;
+        jugada->cabeza->anterior = ultimo->anterior;
+    }
+
+    free(ultimo);
+    jugada->tamanio--;
+
+    return resultado;
+}
+
+void jugadaInicial(){
+    
+}
 void finTurno(struct ColaJugadores *cola) {
     if (cola == NULL || cola->frente == NULL) {
-        printf("Fin de la partida!.\n");
+        printf("Fin de la partida!\n");
+        PCTurn(2);
         return;
     }
     // Avanzar el frente de la cola
@@ -311,9 +417,12 @@ void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResulta
         }
 
         jugadorActual->siguiente = NULL; // Desconectar para evitar circularidad en resultados
-
-        printf("El jugador %s ha salido del juego porque no tiene fichas.\n", jugadorActual->nombre);
+        if ((*jugadoresActuales) > 1)
+            printf("%s ha salido del juego.\n", jugadorActual->nombre);
+        else
+            printf("El jugador %s ha salido porque ya no hay mas jugadores!.\n", jugadorActual->nombre);
         (*jugadoresActuales)--;
+        PCTurn(2);
     }
 }
 
