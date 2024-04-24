@@ -10,6 +10,7 @@
 #define GRIS "\x1B[38;2;161;159;156m"
 #define BLANCO "\x1B[37m"
 #define MAX_JUGADORES 4
+#define MAX_JUGADA 13
 // Funciones para limpiar la pantalla
 int randomNumber();
 void colorReset();
