@@ -7,6 +7,7 @@
 #define VERDE "\x1B[38;2;46;249;77m"
 #define ROSA "\x1B[38;2;243;39;249m"
 #define NARANJA "\x1B[38;2;249;156;46m"
+#define GRIS "\x1B[38;2;161;159;156m"
 #define BLANCO "\x1B[37m"
 #define MAX_JUGADORES 4
 // Funciones para limpiar la pantalla
@@ -31,4 +32,6 @@ void imprimirManos(struct ColaJugadores *cola, int totalJugadores);
 void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote);
 void descartar(struct ColaJugadores *cola, struct Pila *bote);
 void finTurno(struct ColaJugadores *cola);
+void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResultados, int *jugadoresActuales);
+void Leaderboard(struct ColaJugadores* colaResultados, int totalJugadores);
 #endif

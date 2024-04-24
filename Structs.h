@@ -31,6 +31,7 @@ struct Jugador {
     struct Fichas mano[TAM_MAX];
     struct Jugador *siguiente;
     int numCartas;
+    bool jugadorActivo;
 };
 
 struct ColaJugadores {

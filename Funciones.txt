@@ -1,0 +1,32 @@
+randomNumber te da un Número aleatorio
+
+isJoker te devuelve si una ficha es un comodin o no, te ayuda para impresion de control especifica y acciones 
+especificas del comodin
+
+colorReset hace que la consola vuelva a imprimir en blanco
+
+clearPlayerTurn y PCTurn limpian la consola y duermen el proceso para evitar multiples reimpresiones en un segundo
+
+createInitialDeck y createJokers hacen la baraja en general, bom dia
+
+inicializarCola, inicializarPila e inicializarJugada inician los apuntadores de las estructuras
+
+insertarJugador mete un jugador a la cola de jugadores necesarios para iniciar el juego
+
+mezclarJugadores hará aleatoria el orden de los jugadores para iniciar el juego
+
+repartirPilaYCartas y shuffle revuelven y reparten la baraja entre los jugadores y el resto se va a la pila
+
+imprimirManos imprime las manos en el tablero, mostrando la baraja del jugador actual
+
+comer hace que el jugador actual obtenga una nueva carta del montón, después pasa el turno al siguiente jugador
+
+descartar elimina una carta de la mano del jugador o del bot (Tenemos que checar si lo dejamos o no
+porque afecta a la jugabilidad y complejidad del juego)
+
+finTurno literalmente cede el turno al siguiente jugador
+
+revisarSalida revisa si un jugador ya no tiene cartas, y si es así, lo saca de la cola de jugadores actuales
+y lo envía a una cola de clasificacion
+
+Leaderboard imprime la clasificacion de jugadores
