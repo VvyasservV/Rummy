@@ -5,6 +5,7 @@
 #include "Structs.h"
 
 int main() {
+    int random;
     colorReset();
     int totalJugadores = 0, jugadoresConsola = -1, bots = 0;
 
@@ -49,24 +50,39 @@ int main() {
         sprintf(bot, "Bot %d", i+1);
         insertarJugador(&cola, bot, true);
     }
+    ClearPlayerTurn();
+    printf("Orden de los jugadores\n");
     mezclarJugadores(&cola, totalJugadores);
+    PCTurn(5);
     // Repartir cartas a cada jugador y llenar la pila con el resto
     repartirCartasYPila(&cola, Baraja, Comodin, totalJugadores, &pila);
 
     // Imprimir la pila
-    printf("\nCartas restantes en la pila:\n");
-    for (int i = 0; i < pila.top; i++) {
-        if(isJoker(pila.array[i].numero))
-            printf("%s J   ", pila.array[i].color);
+    while (&cola != NULL){
+        random  = randomNumber();
+        colorReset();
+        // Imprimir las manos de los jugadores
+        imprimirManos(&cola, totalJugadores);
+        colorReset();
+        if(pila.top != 0)
+            printf("POZO: %d\n", pila.top);
         else
-            printf("%s %d   ", pila.array[i].color, pila.array[i].numero);
-        if(i%13==0){
-            printf("\n");
-        }
+            printf("POZO VACIO!\n");
+        colorReset();
+        if(bote.top != 0)
+            printf("POZO DE DESCARTES: %s%d\n", bote.array[bote.top-1].color, bote.array[bote.top-1].numero);
+        else
+            printf("POZO DE DESCARTES VACIO!\n");
+        colorReset();
+        printf("Mesa:\n");
+        PCTurn(1);
+        comer(&cola, &pila, &bote);
+        if(random==0)
+            descartar(&cola, &bote);
+        finTurno(&cola);
     }
-    colorReset();
-    // Imprimir las manos de los jugadores
-    imprimirManos(&cola, totalJugadores);
-    colorReset();
+    
+    
+    
     return 0;
 }

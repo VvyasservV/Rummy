@@ -9,6 +9,17 @@ struct Fichas {
     bool asignada;
 };
 
+struct Nodo {
+    struct Fichas ficha;
+    struct Nodo* siguiente;
+    struct Nodo* anterior;
+};
+
+struct ListaDoble {
+    struct Nodo* cabeza;
+    struct Nodo* cola;
+};
+
 struct Pila {
     int top;
     struct Fichas array[TAM_MAX];
@@ -17,8 +28,9 @@ struct Pila {
 struct Jugador {
     char nombre[50];
     bool esBot;
-    struct Fichas mano[13];
+    struct Fichas mano[TAM_MAX];
     struct Jugador *siguiente;
+    int numCartas;
 };
 
 struct ColaJugadores {

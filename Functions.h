@@ -10,21 +10,25 @@
 #define BLANCO "\x1B[37m"
 #define MAX_JUGADORES 4
 // Funciones para limpiar la pantalla
+int randomNumber();
 void colorReset();
 void ClearPlayerTurn();
 void PCTurn(int i);
 
 // Funciones para manipular la cola de jugadores
 bool isJoker(int Joker);
-void inicializarPila(struct Pila *pila);
-void inicializarCola(struct ColaJugadores *cola);
-void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
-
-void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
- struct Fichas comodin[2], int totalJugadores, struct Pila *pila);
-// Funciones para crear la baraja y los comodines
 void createInitialDeck(struct Fichas Baraja[4][26]);
 void createJokers(struct Fichas Comodin[2]);
+void inicializarPila(struct Pila *pila);
+void inicializarCola(struct ColaJugadores *cola);
+
+void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
+void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
+ struct Fichas comodin[2], int totalJugadores, struct Pila *pila);
 void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores);
+
+void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote);
+void descartar(struct ColaJugadores *cola, struct Pila *bote);
+void finTurno(struct ColaJugadores *cola);
 #endif
