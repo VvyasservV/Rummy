@@ -94,6 +94,7 @@ void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot) {
     nuevoJugador->esBot = esBot;
     nuevoJugador->siguiente = NULL;
     nuevoJugador->numCartas = 0;
+    nuevoJugador->jugadorActivo = false;
     if (cola->frente == NULL) {
         cola->frente = nuevoJugador;
     } else {
@@ -103,89 +104,6 @@ void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot) {
     cola->trasero = nuevoJugador;
 
     cola->trasero->siguiente = cola->frente;
-}
-
-void shuffle(struct Fichas *array, int n) {
-    if (n > 1) {
-        int i;
-        for (i = 0; i < n - 1; i++) {
-            int j = i + rand() / (RAND_MAX / (n - i) + 1);
-            struct Fichas temp = array[j];
-            array[j] = array[i];
-            array[i] = temp;
-        }
-    }
-}
-
-void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
- struct Fichas comodin[2], int totalJugadores, struct Pila *pila) {
-    struct Jugador *actual = cola->frente;
-    int cartaPila = 0;
-    int totalCartas = 4*26 + 2; // Total de cartas en la baraja, incluyendo los comodines
-    int totalManos = totalJugadores; // Total de manos que se repartirán
-
-    // Crear un arreglo temporal para barajar las cartas
-    struct Fichas tempBaraja[4 * 26 + 2];
-    int idx = 0, k=0;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 26; j++) {
-            tempBaraja[idx++] = baraja[i][j];
-        }
-    }
-    // Agregar los comodines al arreglo temporal
-    tempBaraja[idx++] = comodin[0];
-    tempBaraja[idx++] = comodin[1];
-
-    // Barajar el arreglo de cartas
-    shuffle(tempBaraja, totalCartas);
-
-    // Repartir las cartas aleatorias a cada jugador
-    for (int i = 0; i < totalManos; i++) {
-        for (int j = 0; j < 13; j++) { // Cada jugador recibe 13 cartas
-            // Verificar si aún quedan cartas en el arreglo barajado
-            if (k < totalCartas) {
-                actual->mano[j] = tempBaraja[k++];
-            } else {
-                // Si no quedan más cartas, salir del bucle
-                break;
-            }
-            actual->numCartas++;
-        }
-        // Avanzar al siguiente jugador después de repartir todas las cartas de la mano actual
-        actual = actual->siguiente; 
-    }
-
-    // Llenar la pila con las cartas restantes
-    for (; k < totalCartas; k++) {
-        pila->array[cartaPila++] = tempBaraja[k];
-        pila->top++; // Actualizar el valor de top
-    }
-}
-
-
-
-void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
-    struct Jugador *actual = cola->frente;
-
-    // Imprimir las manos de los jugadores reales
-    for (int i = 1; i <= totalJugadores; i++) {
-        colorReset();
-        printf("Jugador %s: \nFichas:\t", actual->nombre);
-        for (int j = 0; j < actual->numCartas; j++) {
-            if(isJoker(actual->mano[j].numero))
-                printf("%sJ\t", actual->mano[j].color);
-            else
-                printf("%s %d  ", actual->mano[j].color, actual->mano[j].numero);
-        }
-        printf("\n");
-        actual = actual->siguiente;
-    }
-}
-
-bool isJoker(int Joker){
-    if(Joker == 99)
-        return 1;
-    return 0;
 }
 
 void mezclarJugadores(struct ColaJugadores* cola, int totalJugadores) {
@@ -229,6 +147,100 @@ void mezclarJugadores(struct ColaJugadores* cola, int totalJugadores) {
     }
 }
 
+void shuffle(struct Fichas *array, int n) {
+    if (n > 1) {
+        int i;
+        for (i = 0; i < n - 1; i++) {
+            int j = i + rand() / (RAND_MAX / (n - i) + 1);
+            struct Fichas temp = array[j];
+            array[j] = array[i];
+            array[i] = temp;
+        }
+    }
+}
+
+void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
+ struct Fichas comodin[2], int totalJugadores, struct Pila *pila) {
+    struct Jugador *actual = cola->frente;
+    int cartaPila = 0;
+    int totalCartas = 4*26 + 2; // Total de cartas en la baraja, incluyendo los comodines
+    int totalManos = totalJugadores; // Total de manos que se repartirán
+
+    // Crear un arreglo temporal para barajar las cartas
+    struct Fichas tempBaraja[4 * 26 + 2];
+    int idx = 0, k=0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 26; j++) {
+            tempBaraja[idx++] = baraja[i][j];
+        }
+    }
+    // Agregar los comodines al arreglo temporal
+    tempBaraja[idx++] = comodin[0];
+    tempBaraja[idx++] = comodin[1];
+
+    // Barajar el arreglo de cartas
+    shuffle(tempBaraja, totalCartas);
+
+    // Repartir las cartas aleatorias a cada jugador
+    for (int i = 0; i < totalManos; i++) {
+        for (int j = 0; j < 2; j++) { // Cada jugador recibe 13 cartas
+            // Verificar si aún quedan cartas en el arreglo barajado
+            if (k < totalCartas) {
+                actual->mano[j] = tempBaraja[k++];
+            } else {
+                // Si no quedan más cartas, salir del bucle
+                break;
+            }
+            actual->numCartas++;
+        }
+        // Avanzar al siguiente jugador después de repartir todas las cartas de la mano actual
+        actual = actual->siguiente; 
+    }
+
+    // Llenar la pila con las cartas restantes
+    for (; k < totalCartas; k++) {
+        pila->array[cartaPila++] = tempBaraja[k];
+        pila->top++; // Actualizar el valor de top
+    }
+}
+
+
+
+void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
+    struct Jugador *actual = cola->frente;
+
+    // Imprimir las manos de los jugadores reales
+    for (int i = 1; i <= totalJugadores; i++) {
+        colorReset();
+        printf("Jugador %s: \nFichas:\t", actual->nombre);
+        if(actual==cola->frente){
+            for (int j = 0; j < actual->numCartas; j++) {
+            if(isJoker(actual->mano[j].numero))
+                printf("%sJ\t", actual->mano[j].color);
+            else
+                printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
+            if(j != 0 && j%15==0)
+                printf("\n");
+            }
+        }else{
+            for (int j = 0; j < actual->numCartas; j++) {
+                printf("%s*\t", GRIS);
+                if(j != 0 && j%15==0)
+                    printf("\n");
+            }
+        }
+        printf("\n");
+        actual = actual->siguiente;
+    }
+}
+
+bool isJoker(int Joker){
+    if(Joker == 99)
+        return 1;
+    return 0;
+}
+
+
 void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
     struct Jugador *actual = cola->frente;
     if(pila->top!=0){        
@@ -238,6 +250,7 @@ void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
         bote->top--;
         actual->mano[actual->numCartas++] = bote->array[bote->top];
     }
+    finTurno(cola);s
 }
 
 void descartar(struct ColaJugadores *cola, struct Pila *bote){
@@ -258,10 +271,73 @@ void descartar(struct ColaJugadores *cola, struct Pila *bote){
 
 void finTurno(struct ColaJugadores *cola) {
     if (cola == NULL || cola->frente == NULL) {
-        printf("Error: La cola está vacía.\n");
+        printf("Fin de la partida!.\n");
+        return;
+    }
+    // Avanzar el frente de la cola
+    cola->frente = cola->frente->siguiente;
+    cola->trasero = cola->trasero->siguiente;
+}
+
+void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResultados, int *jugadoresActuales) {
+    if (cola == NULL || cola->frente == NULL) {
+        printf("Error: La cola de jugadores está vacía.\n");
         return;
     }
 
-    // Avanzar el frente de la cola
-    cola->frente = cola->frente->siguiente;
+    struct Jugador* jugadorActual = cola->frente;
+
+    // Verificar si el jugador no tiene fichas
+    if (jugadorActual->numCartas == 0 || cola->frente == cola->trasero) {
+        // Si el jugador no tiene fichas, sacarlo de la cola actual
+        if (cola->frente == cola->trasero) {
+            // Si era el único jugador en la cola, se vacía la cola
+            cola->frente = NULL;
+            cola->trasero = NULL;
+        } else {
+            cola->frente = jugadorActual->siguiente; // Avanzar el frente
+            cola->trasero->siguiente = cola->frente; // Mantener circularidad
+        }
+
+        // Ahora agregamos el jugador a la cola de resultados
+        if (colaResultados->frente == NULL) {
+            // Si la cola de resultados está vacía, el jugador se convierte en el frente y el trasero
+            colaResultados->frente = jugadorActual;
+            colaResultados->trasero = jugadorActual;
+        } else {
+            // De lo contrario, agregamos al final de la cola de resultados
+            colaResultados->trasero->siguiente = jugadorActual;
+            colaResultados->trasero = jugadorActual; // Actualizar el trasero
+        }
+
+        jugadorActual->siguiente = NULL; // Desconectar para evitar circularidad en resultados
+
+        printf("El jugador %s ha salido del juego porque no tiene fichas.\n", jugadorActual->nombre);
+        (*jugadoresActuales)--;
+    }
+}
+
+
+void Leaderboard(struct ColaJugadores* colaResultados, int totalJugadores) {
+    if (colaResultados == NULL || colaResultados->frente == NULL) {
+        printf("No hay jugadores en la cola de resultados.\n");
+        return;
+    }
+
+    struct Jugador* actual = colaResultados->frente;
+    int posicion = 1; // Inicia la posición desde 1
+
+    printf("Clasificacion del juego:\n");
+
+    // Recorre la cola de resultados imprimiendo los jugadores en orden
+    do {
+        printf("%d.- %s\n", posicion, actual->nombre);
+
+        if (actual->siguiente == NULL) {
+            break; // Si hemos llegado al final de la cola de resultados, salimos del bucle
+        }
+
+        actual = actual->siguiente; // Avanza al siguiente jugador
+        posicion++; // Aumenta la posición
+    } while (actual != NULL && posicion <= totalJugadores);
 }
