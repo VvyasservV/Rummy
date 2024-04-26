@@ -199,7 +199,7 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     }
 }
 
-void seleccionarIndice(struct Jugador *actual){
+void imprimirIndices(struct Jugador *actual){
     printf("%s", BLANCO);
     for (int j = 0; j < actual->numCartas; j++) {
         printf("%d\t",(j+1));
@@ -242,32 +242,112 @@ bool isJoker(int Joker){
     return 0;
 }
 
-
+int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize) {
+    int corridas = 0, OAK = 0;
+    
+    // Ordena el arreglo para verificar las corridas
+    ordenarMano(fichas, arrSize);
+    
+    // Verifica corridas
+    for (int i = 1; i < arrSize; i++) {
+        if (fichas[i - 1].numero < fichas[i].numero 
+            && strcmp(fichas[i - 1].color, fichas[i].color) == 0) {  // Mismo color
+            corridas = 1;
+        }else   corridas = 0;
+    }
+    
+    // Verifica "OAK" (Tres iguales)
+    for (int i = 1; i < arrSize; i++) {
+        if (fichas[i - 1].numero == fichas[i].numero
+            && strcmp(fichas[i - 1].color, fichas[i].color) != 0) {
+            OAK = 1;
+        }else   OAK = 0;
+    }
+    
+    return corridas || OAK;  // Devuelve 1 si hay corridas o "OAK", de lo contrario 0
+}
 void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
     struct Jugador *actual = cola->frente;
-    if(pila->top!=0){        
-        pila->top--;
-        actual->mano[actual->numCartas++] = pila->array[pila->top];
-    }else if(bote->top!=0){
-        bote->top--;
-        actual->mano[actual->numCartas++] = bote->array[bote->top];
+    int opcion = 0;
+    if(actual->esBot == 1){
+        if(pila->top!=0){        
+            pila->top--;
+            actual->mano[actual->numCartas++] = pila->array[pila->top];
+        }else if(bote->top!=0){
+            bote->top--;
+            actual->mano[actual->numCartas++] = bote->array[bote->top];
+        }
+    } else if(actual->esBot == 0){
+        if(pila->top > 0 || bote->top > 0){
+            if(pila->top > 0 && bote->top > 0){
+                while(opcion != 1 && opcion != 2){ // Cambiado 'option' a 'opcion'
+                    printf("1....Comer del pozo\n");
+                    printf("2....Comer del pozo de descartes\n");
+                    scanf("%d", &opcion);
+                    if(opcion != 1 && opcion != 2){
+                        printf("Opcion incorrecta, intentalo de nuevo\n");
+                        PCTurn(3);
+                    }
+                }
+                if(opcion == 1){        
+                    pila->top--; 
+                    actual->mano[actual->numCartas++] = pila->array[pila->top];
+                } else if(opcion == 2){
+                    bote->top--; 
+                    actual->mano[actual->numCartas++] = bote->array[bote->top];
+                }
+            } else if(pila->top > 0){        
+                pila->top--; 
+                actual->mano[actual->numCartas++] = pila->array[pila->top];
+            } else if(bote->top > 0){ 
+                bote->top--; 
+                actual->mano[actual->numCartas++] = bote->array[bote->top];
+            }
+        } else {
+            printf("No puedes comer!\n");
+        }
     }
 }
 
 void descartar(struct ColaJugadores *cola, struct Pila *bote){
     struct Jugador *actual = cola->frente;
-    int descartada = rand() % actual->numCartas;
-    if(actual->numCartas!=0){
-        bote->array[bote->top] = actual->mano[descartada];
-        bote->top++; // Aumentar el tope del pozo de descartes
-
-        // Eliminar la carta de la mano del jugador
-        for (int i = descartada; i < actual->numCartas - 1; i++) {
-            actual->mano[i] = actual->mano[i + 1]; // Desplazar las cartas para llenar el hueco
+    int descartada=-1;
+    if(actual->esBot == 0){
+        while(descartada > actual->numCartas || descartada < 0){
+            printf("Selecciona el indice de la ficha a descartar\n");
+            imprimirManoActual(actual);
+            printf("\n");
+            imprimirIndices(actual);
+            printf("\n");
+            scanf("%d", &descartada);
+            descartada--;
+            if(descartada < 0 && descartada > actual->numCartas){
+                printf("Indice incorrecto, ingresa un indice valido\n");
+                PCTurn(2);
+            }
         }
+        if(actual->numCartas!=0){
+            bote->array[bote->top] = actual->mano[descartada];
+            bote->top++; // Aumentar el tope del pozo de descartes
 
-        actual->numCartas--;
+            // Eliminar la carta de la mano del jugador
+            for (int i = descartada; i < actual->numCartas - 1; i++) 
+                actual->mano[i] = actual->mano[i + 1]; // Desplazar las cartas para llenar el hueco
+            actual->numCartas--;
+        }        
+    }else if(actual->esBot == 1){
+        descartada=rand() % actual->numCartas;
+        if(actual->numCartas!=0){
+            bote->array[bote->top] = actual->mano[descartada];
+            bote->top++; // Aumentar el tope del pozo de descartes
+
+            // Eliminar la carta de la mano del jugador
+            for (int i = descartada; i < actual->numCartas - 1; i++) 
+                actual->mano[i] = actual->mano[i + 1]; // Desplazar las cartas para llenar el hueco
+            actual->numCartas--;
+        }
     }
+    
 }
 
 void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista) {
@@ -286,6 +366,26 @@ void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista) {
         tablero->cabeza->anterior = nuevo_nodo;
     }
     tablero->tamanio++;
+}
+
+void ordenarMano(struct Fichas *fichas[MAX_JUGADA], int n) {
+
+    if (n <= 1) {
+        return;  // No hay nada que ordenar si solo hay una carta o ninguna
+    }
+
+    for (int i = 1; i < n; i++) {
+        struct Fichas key = *fichas[i];  // Ahora es una copia, no un puntero
+        int j = i - 1;
+
+        while (j >= 0 && n > key.numero) {
+            *fichas[j + 1] = *fichas[j];  // Desplaza el elemento
+            j--;  // Mueve el índice hacia la izquierda
+        }
+
+        // Inserta la ficha en la posición correcta
+        *fichas[j + 1] = key;
+    }
 }
 
 
@@ -325,6 +425,7 @@ void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor) {
     }
     jugada->tamanio++;
 }
+
 struct Fichas robarPorInicio(struct CDLL *jugada) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar por inicio.\n");
@@ -348,7 +449,6 @@ struct Fichas robarPorInicio(struct CDLL *jugada) {
     return resultado;
 }
 
-// Función para robar una ficha por el final
 struct Fichas robarPorFinal(struct CDLL *jugada) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar por final.\n");
@@ -371,8 +471,104 @@ struct Fichas robarPorFinal(struct CDLL *jugada) {
     return resultado;
 }
 
-void jugadaInicial(){
+int iniciarJugada(struct Jugador *actual, int indices[8][MAX_JUGADA], int i){
+    int finJugada = 0, indiceSeleccionado = 0, j = 0, sumaIndices = 0, jugadaValida, arrSize; 
+    struct Fichas posibleJugada[MAX_JUGADA];
+    while(finJugada != 2 && j<MAX_JUGADA){
+        indiceSeleccionado = 0;
+        printf("Selecciona los indices de las cartas a jugar\n");
+        imprimirManoActual(actual);
+        printf("\n");
+        imprimirIndices(actual);
+        printf("\n");
+        while(indiceSeleccionado > (actual->numCartas)+1 || indiceSeleccionado < 1){
+            scanf("%d", &indiceSeleccionado);
+            if(indiceSeleccionado > (actual->numCartas)+1 || indiceSeleccionado < 1){
+                printf("Dato invalido, ingresa otro indice\n");
+            }
+        }
+        indices[i][j] = indiceSeleccionado - 1;
+        j++;
+        while(finJugada != 1 && finJugada != 2){
+            printf("Deseas agregar otro indice?\n");
+            printf("1...Si\n");
+            printf("2...No\n");
+            scanf("%d", &finJugada);
+            if(finJugada != 1 && finJugada != 2){
+                printf("Dato invalido, ingresa otra opcion\n");
+            }
+        }
+        if(finJugada == 2 && j < 3){
+            printf("Faltan fichas para crear un juego valido\n");
+            printf("Estas seguro de querer salir?\n");
+            while(finJugada != 1 && finJugada != 2){
+                printf("1...No\n");
+                printf("2...Si\n");
+                scanf("%d", &finJugada);
+                if(finJugada != 1 && finJugada != 2){
+                    printf("Dato invalido, ingresa otra opcion\n");
+                }
+            }
+            if(finJugada == 2){
+                indices[i][0] = -1;
+                return sumaIndices;
+            }
+        }
+    }
+    for(int k = 0; k < j;k++)
+        sumaIndices += indices[i][k];
+    indices[i][j] = -1;
     
+    for(int j = 0; j < i; j++){
+        for(int k = 0; indices[j][k] != -1; k++){
+            posibleJugada[k] = actual->mano[indices[j][k]];
+            arrSize = k;            
+        }
+        jugadaValida = revisarJugada(posibleJugada, arrSize);
+        if(!jugadaValida){
+            
+        }
+    }
+}
+
+void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
+    int indices[8][MAX_JUGADA];//Cantidad de maximas jugadas posibles en una sola mano
+    //Jugar la mano entera y descartar una
+    //Jugar 4 juegos de 3
+    //Jugar 3 juegos de 4
+    //Jugar 2 juegos de 3 y 2 de 4 
+    //8 en caso extremo y si el usuario tiene toda la baraja (poco probable)
+    int sumaIndices = 0, finJugada = -1, i = 0, jugadaValida;
+    while(sumaIndices<25 && finJugada != 2){
+        ClearPlayerTurn();
+        sumaIndices = iniciarJugada(cola->frente, indices, i);
+        printf("La suma de tus fichas en juego es de: %d", sumaIndices);
+        while(finJugada != 1 && finJugada != 2){
+            printf("Deseas realizar otra jugada?\n");
+            printf("1....Si\n");
+            printf("2....No\n");
+            scanf("%d", &finJugada);
+            if(finJugada != 1 && finJugada != 2)
+                printf("dato invalido, intenta de nuevo");
+        }
+        if(finJugada == 2 && sumaIndices < 25){
+            while(finJugada != 1 && finJugada != 2){
+            printf("Tus puntos no son suficientes, estas seguro de salir?\n");
+            printf("1....No\n");
+            printf("2....Si\n");
+            scanf("%d", &finJugada);
+            if(finJugada != 1 && finJugada != 2)
+                printf("dato invalido, intenta de nuevo");
+            }
+            if(finJugada == 2){
+                i = 0;
+                comer(cola, pila, bote);
+                break;
+            }
+        }
+        if(finJugada == 1)
+            i++;
+    }
 }
 void finTurno(struct ColaJugadores *cola) {
     if (cola == NULL || cola->frente == NULL) {
@@ -425,7 +621,6 @@ void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResulta
         PCTurn(2);
     }
 }
-
 
 void Leaderboard(struct ColaJugadores* colaResultados, int totalJugadores) {
     if (colaResultados == NULL || colaResultados->frente == NULL) {
