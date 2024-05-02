@@ -3,13 +3,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #ifdef _WIN32
     #include <Windows.h>
 #else
     #include <unistd.h>
 #endif
+/*
+------------------Indice-----------------------
+Funciones generales.........................23
+Funciones de inicio del juego...............48
+Funciones para el juego.....................204
+    Funciones para el tablero...............345
+    Modificar jugadas en tablero............---
+        Agregar fichas a juego existente....363
+        Robar fichas a juego existente......399
+    Funciones de control de juego...........570
+Funciones de final de juego.................622
+*/
 
+//Funciones generales
 int randomNumber(){
     srand(time(NULL));
     int random = rand()%5;
@@ -25,7 +37,6 @@ void ClearPlayerTurn(){
         system("clear");
     #endif
 }
-
 void PCTurn(int i){
     #ifdef _WIN32
         Sleep(i*1000);
@@ -35,6 +46,7 @@ void PCTurn(int i){
         system("clear");
     #endif
 }
+//Funciones de inicio del juego
 void createInitialDeck(struct Fichas Baraja[4][26]) {
     srand(time(NULL));
     int i;
@@ -59,7 +71,6 @@ void createInitialDeck(struct Fichas Baraja[4][26]) {
         Baraja[3][i].asignada = false;
     }
 }
-
 void createJokers(struct Fichas Comodin[2]){
     int i;
     for(i=0;i<2;i++){
@@ -68,16 +79,13 @@ void createJokers(struct Fichas Comodin[2]){
         Comodin[i].asignada = false;
     }
 }
-
 void inicializarCola(struct ColaJugadores *cola) {
     cola->frente = NULL;
     cola->trasero = NULL;
 }
-
 void inicializarPila(struct Pila *pila) {
     pila->top = 0; // Inicializar el top de la pila en 0
 }
-
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot) {
     struct Jugador *nuevoJugador = (struct Jugador *)malloc(sizeof(struct Jugador));
     if (esBot) {
@@ -100,7 +108,6 @@ void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot) {
 
     cola->trasero->siguiente = cola->frente;
 }
-
 void mezclarJugadores(struct ColaJugadores* cola, int totalJugadores) {
     if (totalJugadores <= 0) {
         printf("Error: totalJugadores es 0 o negativo.\n");
@@ -141,19 +148,6 @@ void mezclarJugadores(struct ColaJugadores* cola, int totalJugadores) {
         printf("Jugador %d: %s\n", i + 1, jugadores[i]->nombre);
     }
 }
-
-void shuffle(struct Fichas *array, int n) {
-    if (n > 1) {
-        int i;
-        for (i = 0; i < n - 1; i++) {
-            int j = i + rand() / (RAND_MAX / (n - i) + 1);
-            struct Fichas temp = array[j];
-            array[j] = array[i];
-            array[i] = temp;
-        }
-    }
-}
-
 void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
  struct Fichas comodin[2], int totalJugadores, struct Pila *pila) {
     struct Jugador *actual = cola->frente;
@@ -174,7 +168,7 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     tempBaraja[idx++] = comodin[1];
 
     // Barajar el arreglo de cartas
-    shuffle(tempBaraja, totalCartas);
+    revolver(tempBaraja, totalCartas);
 
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++) {
@@ -198,23 +192,17 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
         pila->top++; // Actualizar el valor de top
     }
 }
-
-void imprimirIndices(struct Jugador *actual){
-    printf("%s", BLANCO);
-    for (int j = 0; j < actual->numCartas; j++) {
-        printf("%d\t",(j+1));
+void revolver(struct Fichas *array, int n) {
+    int i;
+    for (i = 0; i < n - 1; i++) {
+        int j = i + rand() / (RAND_MAX / (n - i) + 1);
+        struct Fichas temp = array[j];
+        array[j] = array[i];
+        array[i] = temp;
     }
 }
 
-
-void imprimirManoActual(struct Jugador *actual){
-    for (int j = 0; j < actual->numCartas; j++) {
-        if(isJoker(actual->mano[j].numero))     printf("%sJ\t", actual->mano[j].color);
-        else    printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
-        if(j != 0 && j%15==0)   printf("\n");
-    }
-}
-
+//Funciones para el juego
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
     struct Jugador *actual = cola->frente;
 
@@ -235,36 +223,42 @@ void imprimirManos(struct ColaJugadores *cola, int totalJugadores) {
         actual = actual->siguiente;
     }
 }
+void imprimirManoActual(struct Jugador *actual){
+    for (int j = 0; j < actual->numCartas; j++) {
+        if(isJoker(actual->mano[j].numero))     printf("%sJ\t", actual->mano[j].color);
+        else    printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
+        if(j != 0 && j%15==0)   printf("\n");
+    }
+}
+void imprimirIndices(struct Jugador *actual){
+    printf("%s", BLANCO);
+    for (int j = 0; j < actual->numCartas; j++) {
+        printf("%d\t",(j+1));
+    }
+}
+void ordenarMano(struct Fichas *fichas[MAX_JUGADA], int n) {
 
+    if (n <= 1) {
+        return;  // No hay nada que ordenar si solo hay una carta o ninguna
+    }
+
+    for (int i = 1; i < n; i++) {
+        struct Fichas key = *fichas[i];  // Ahora es una copia, no un puntero
+        int j = i - 1;
+
+        while (j >= 0 && n > key.numero) {
+            *fichas[j + 1] = *fichas[j];  // Desplaza el elemento
+            j--;  // Mueve el índice hacia la izquierda
+        }
+
+        // Inserta la ficha en la posición correcta
+        *fichas[j + 1] = key;
+    }
+}
 bool isJoker(int Joker){
     if(Joker == 99)
         return 1;
     return 0;
-}
-
-int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize) {
-    int corridas = 0, OAK = 0;
-    
-    // Ordena el arreglo para verificar las corridas
-    ordenarMano(fichas, arrSize);
-    
-    // Verifica corridas
-    for (int i = 1; i < arrSize; i++) {
-        if (fichas[i - 1].numero < fichas[i].numero 
-            && strcmp(fichas[i - 1].color, fichas[i].color) == 0) {  // Mismo color
-            corridas = 1;
-        }else   corridas = 0;
-    }
-    
-    // Verifica "OAK" (Tres iguales)
-    for (int i = 1; i < arrSize; i++) {
-        if (fichas[i - 1].numero == fichas[i].numero
-            && strcmp(fichas[i - 1].color, fichas[i].color) != 0) {
-            OAK = 1;
-        }else   OAK = 0;
-    }
-    
-    return corridas || OAK;  // Devuelve 1 si hay corridas o "OAK", de lo contrario 0
 }
 void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
     struct Jugador *actual = cola->frente;
@@ -308,7 +302,6 @@ void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
         }
     }
 }
-
 void descartar(struct ColaJugadores *cola, struct Pila *bote){
     struct Jugador *actual = cola->frente;
     int descartada=-1;
@@ -350,7 +343,8 @@ void descartar(struct ColaJugadores *cola, struct Pila *bote){
     
 }
 
-void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista) {
+    //Funciones para el tablero
+void agregarJugada(struct Tablero *tablero,struct Jugada *nueva_lista) {
     struct NodoTablero *nuevo_nodo = (struct NodoTablero *)malloc(sizeof(struct NodoTablero));
     nuevo_nodo->lista = nueva_lista;
 
@@ -367,29 +361,8 @@ void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista) {
     }
     tablero->tamanio++;
 }
-
-void ordenarMano(struct Fichas *fichas[MAX_JUGADA], int n) {
-
-    if (n <= 1) {
-        return;  // No hay nada que ordenar si solo hay una carta o ninguna
-    }
-
-    for (int i = 1; i < n; i++) {
-        struct Fichas key = *fichas[i];  // Ahora es una copia, no un puntero
-        int j = i - 1;
-
-        while (j >= 0 && n > key.numero) {
-            *fichas[j + 1] = *fichas[j];  // Desplaza el elemento
-            j--;  // Mueve el índice hacia la izquierda
-        }
-
-        // Inserta la ficha en la posición correcta
-        *fichas[j + 1] = key;
-    }
-}
-
-
-void agregarFichaPorDerecha(struct CDLL *jugada, struct Fichas valor) {
+        //Agregar fichas a juego existente
+void agregarFichaPorDerecha(struct Jugada *jugada, struct Fichas valor) {
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuevo_nodo->ficha = valor;
 
@@ -406,8 +379,7 @@ void agregarFichaPorDerecha(struct CDLL *jugada, struct Fichas valor) {
     }
     jugada->tamanio++;
 }
-
-void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor) {
+void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor) {
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuevo_nodo->ficha = valor;
 
@@ -425,8 +397,8 @@ void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor) {
     }
     jugada->tamanio++;
 }
-
-struct Fichas robarPorInicio(struct CDLL *jugada) {
+        //Robar fichas a juego existente
+struct Fichas robarPorInicio(struct Jugada *jugada) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar por inicio.\n");
         return (struct Fichas){-1, "N/A", false}; // Indicador de error
@@ -448,8 +420,7 @@ struct Fichas robarPorInicio(struct CDLL *jugada) {
 
     return resultado;
 }
-
-struct Fichas robarPorFinal(struct CDLL *jugada) {
+struct Fichas robarPorFinal(struct Jugada *jugada) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar por final.\n");
         return (struct Fichas){-1, "N/A", false}; // Indicador de error
@@ -469,6 +440,31 @@ struct Fichas robarPorFinal(struct CDLL *jugada) {
     jugada->tamanio--;
 
     return resultado;
+}
+
+int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize) {
+    int corridas = 0, OAK = 0;
+    
+    // Ordena el arreglo para verificar las corridas
+    ordenarMano(fichas, arrSize);
+    
+    // Verifica corridas
+    for (int i = 1; i < arrSize; i++) {
+        if (fichas[i - 1].numero < fichas[i].numero 
+            && strcmp(fichas[i - 1].color, fichas[i].color) == 0) {  // Mismo color
+            corridas = 1;
+        }else   corridas = 0;
+    }
+    
+    // Verifica "OAK" (Tres iguales)
+    for (int i = 1; i < arrSize; i++) {
+        if (fichas[i - 1].numero == fichas[i].numero
+            && strcmp(fichas[i - 1].color, fichas[i].color) != 0) {
+            OAK = 1;
+        }else   OAK = 0;
+    }
+    
+    return corridas || OAK;  // Devuelve 1 si hay corridas o "OAK", de lo contrario 0
 }
 
 int iniciarJugada(struct Jugador *actual, int indices[8][MAX_JUGADA], int i){
@@ -570,6 +566,8 @@ void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *b
             i++;
     }
 }
+
+    //Funciones de control de juego
 void finTurno(struct ColaJugadores *cola) {
     if (cola == NULL || cola->frente == NULL) {
         printf("Fin de la partida!\n");
@@ -580,7 +578,6 @@ void finTurno(struct ColaJugadores *cola) {
     cola->frente = cola->frente->siguiente;
     cola->trasero = cola->trasero->siguiente;
 }
-
 void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResultados, int *jugadoresActuales) {
     if (cola == NULL || cola->frente == NULL) {
         printf("Error: La cola de jugadores está vacía.\n");
@@ -622,6 +619,7 @@ void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResulta
     }
 }
 
+//Funciones de final de juego
 void Leaderboard(struct ColaJugadores* colaResultados, int totalJugadores) {
     if (colaResultados == NULL || colaResultados->frente == NULL) {
         printf("No hay jugadores en la cola de resultados.\n");

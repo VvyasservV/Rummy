@@ -15,7 +15,7 @@ struct Nodo {
     struct Nodo* anterior;
 };
 
-struct CDLL {
+struct Jugada {
     struct Nodo *cabeza;
     int tamanio;
 };
@@ -23,7 +23,7 @@ struct CDLL {
 struct NodoTablero {
     struct NodoTablero *siguiente;
     struct NodoTablero *anterior;
-    struct CDLL *lista;
+    struct Jugada *lista;
 };
 
 struct Tablero {

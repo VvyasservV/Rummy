@@ -11,34 +11,43 @@
 #define BLANCO "\x1B[37m"
 #define MAX_JUGADORES 4
 #define MAX_JUGADA 13
-// Funciones para limpiar la pantalla
+// Funciones generales
 int randomNumber();
 void colorReset();
 void ClearPlayerTurn();
 void PCTurn(int i);
-
-// Funciones para manipular la cola de jugadores
-bool isJoker(int Joker);
+// Funciones para inicio de juego
 void createInitialDeck(struct Fichas Baraja[4][26]);
 void createJokers(struct Fichas Comodin[2]);
-void inicializarPila(struct Pila *pila);
 void inicializarCola(struct ColaJugadores *cola);
+void inicializarPila(struct Pila *pila);
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
+void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
 void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
  struct Fichas comodin[2], int totalJugadores, struct Pila *pila);
- void imprimirManoActual(struct Jugador *actual);
-void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
+void revolver(struct Fichas *array, int n);
+//Funciones para el juego
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores);
-void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista);
-void agregarFichaPorDerecha(struct CDLL *jugada, struct Fichas valor);
-void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor);
-struct Fichas robarPorInicio(struct CDLL *jugada);
-struct Fichas robarPorFinal(struct CDLL *jugada);
-void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote);
+void imprimirManoActual(struct Jugador *actual);
+void imprimirIndices(struct Jugador *actual);
+void ordenarMano(struct Fichas *fichas[MAX_JUGADA], int n);
+bool isJoker(int Joker);
 void comer(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote);
 void descartar(struct ColaJugadores *cola, struct Pila *bote);
-void ordenarMano(struct Fichas *fichas[MAX_JUGADA], int n);
+    //Funciones para el tablero
+void agregarJugada(struct Tablero *tablero,struct CDLL *nueva_lista);
+        //Agregar fichas a juego existente
+void agregarFichaPorDerecha(struct CDLL *jugada, struct Fichas valor);
+void agregarFichaPorIzquierda(struct CDLL *jugada, struct Fichas valor);
+        //Robar fichas a juego existente
+struct Fichas robarPorInicio(struct CDLL *jugada);
+struct Fichas robarPorFinal(struct CDLL *jugada);
+    //Funciones para el jugador
+int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize);
+void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote);
+    //Funciones de control de juego
 void finTurno(struct ColaJugadores *cola);
 void revisarSalida(struct ColaJugadores* cola, struct ColaJugadores* colaResultados, int *jugadoresActuales);
+//Funciones de final de juego
 void Leaderboard(struct ColaJugadores* colaResultados, int totalJugadores);
 #endif
