@@ -91,7 +91,7 @@ int main() {
                         jugadaInicial(&cola, &pila);
                         break;
                     case 2:
-                        ordenarMano(&cola.frente->mano, cola.frente->numCartas);             
+                        ordenarMano(cola.frente->mano, cola.frente->numCartas);             
                         printf("Mano ordenada\n");
                         imprimirManoActual(cola.frente);
                         colorReset();
@@ -106,7 +106,6 @@ int main() {
                         break;
                     }
                 }
-                finTurno(&cola);
             }else{
                 //Segunda tirada, todas las funciones desbloqueadas
                 while(opcion != 4){
@@ -121,7 +120,7 @@ int main() {
                         /* code */
                         break;
                     case 2: 
-                        ordenarMano(&cola.frente->mano, cola.frente->numCartas);
+                        ordenarMano(cola.frente->mano, cola.frente->numCartas);
                         break;
                     case 3:
                         printf("Selecciona el tipo de jugada a realizar:\n");
@@ -141,12 +140,10 @@ int main() {
                         PCTurn(2);
                     }
                 }
-                finTurno(&cola);
             }
         }else{
             //Logica del bot
             comer(&cola, &pila);
-            finTurno(&cola);
             if(cola.frente->jugadorActivo==0){
                 //Primera tirada
                 //jugadaInicial();

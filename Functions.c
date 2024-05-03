@@ -237,21 +237,21 @@ void imprimirIndices(struct Jugador *actual){
         printf("%d\t",(j+1));
     }
 }
-void ordenarMano(struct Fichas *fichas[TAM_MAX], int n) {
+void ordenarMano(struct Fichas fichas[TAM_MAX], int n) {
     int j  = 0;
     if (n <= 1) {
         return;  // No hay nada que ordenar si solo hay una carta o ninguna
     }
 
     for (int i = 1; i < n; i++) {
-        struct Fichas key = *fichas[i];  // Ahora es una copia, no un puntero
+        struct Fichas key = fichas[i];  // Ahora es una copia, no un puntero
         j = i - 1;
         while (j >= 0 && n > key.numero) {
-            *fichas[j + 1] = *fichas[j];  // Desplaza el elemento
+            fichas[j + 1] = fichas[j];  // Desplaza el elemento
             j--;  // Mueve el índice hacia la izquierda
         }
         // Inserta la ficha en la posición correcta
-        *fichas[j + 1] = key;
+        fichas[j + 1] = key;
     }
 }
 bool isJoker(int Joker){
@@ -264,7 +264,8 @@ void comer(struct ColaJugadores *cola, struct Pila *pila){
     if(pila->top > 0){        
         pila->top--; 
         actual->mano[actual->numCartas++] = pila->array[pila->top];
-    }
+    } 
+    finTurno(cola);
 }
 
     //Funciones para el tablero
@@ -369,19 +370,21 @@ struct Fichas robarPorDerecha(struct Jugada *jugada) {
 
     //Funciones para el jugador
         //Funciones jugadorActivo = 0 (Jugador no ha sumado 25 puntos)
-void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *bote){
+void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila){
     int indices[8][MAX_JUGADA];
+    struct Jugada nuevaJugada;
+    struct Jugador actual = *cola->frente;
     //Cantidad de maximas jugadas posibles en una sola mano
     //Jugar la mano entera y/o descartar una
     //Jugar 4 juegos de 3
     //Jugar 3 juegos de 4
     //Jugar 2 juegos de 3 y 2 de 4
     int *arrIndices;
-    int sumaCartas = 0, finJugada = 0, i = 0, jugadaValida;
+    int sumaCartas = 0, finJugada = 0, i = 0, jugadaValida, k = 0;
     while(sumaCartas < 25 || finJugada != 2){
         arrIndices = indices[i];
         ClearPlayerTurn();
-        sumaCartas += iniciarJugada(&cola->frente, arrIndices);
+        sumaCartas += iniciarJugada(&actual, arrIndices);
         if(indices[i][0] != -1)
             i++;
         printf("La suma de tus fichas en juego es de: %d", sumaCartas);
@@ -403,12 +406,25 @@ void jugadaInicial(struct ColaJugadores *cola, struct Pila *pila, struct Pila *b
                 printf("dato invalido, intenta de nuevo");
             }
             if(finJugada == 2){
-                comer(cola, pila, bote);
+                comer(cola, pila);
                 break;
             }
         }
-        if(finJugada == 1)
-            i++;
+    }
+    if(sumaCartas >= 25){
+        for(int j = 0; j < i; j++){
+            k = 0;
+            while(indices[j][k] != -1){
+                agregarFichaPorIzquierda(&nuevaJugada, actual.mano[indices[j][k]]);
+                k++;    
+            }
+            while(k != 0){
+                for(int h = indices[j][k]; h < actual.numCartas - 1; h++)
+                    actual.mano[h] = actual.mano[h+1];
+                actual.numCartas--;
+                k--;
+            }
+        }
     }
 }
 
@@ -456,6 +472,7 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices){
                 return 0;
             }
         }
+
     }
     for(int k = 0; k < arrSize;k++){
         sumaCartas += actual->mano[arrIndices[k]].numero;
@@ -466,6 +483,7 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices){
             arrIndices[0] = -1;
             return 0;
     }
+    return 1;
 }
 //
 int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize, bool esBot) {
@@ -474,8 +492,8 @@ int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize, bool esBot) {
     ordenarMano(fichas, arrSize);
     // Verifica corridas
     for (int i = 1; i < arrSize; i++) {
-        if (fichas[i - 1].numero < fichas[i].numero 
-            && strcmp(fichas[i - 1].color, fichas[i].color) == 0
+        if ((fichas[i - 1].numero == fichas[i].numero-1 
+            && strcmp(fichas[i - 1].color, fichas[i].color) == 0)
             || (fichas[i-1].numero == 99 || fichas[i].numero == 99)) {  // Mismo color
             corridas = 1;
         }else{
@@ -489,8 +507,8 @@ int revisarJugada(struct Fichas fichas[MAX_JUGADA], int arrSize, bool esBot) {
     // Verifica "OAK" (Tres iguales)
     
     for (int i = 1; i < arrSize; i++) {
-        if (fichas[i - 1].numero == fichas[i].numero
-            && strcmp(fichas[i - 1].color, fichas[i].color) != 0
+        if ((fichas[i - 1].numero == fichas[i].numero
+            && strcmp(fichas[i - 1].color, fichas[i].color) != 0)
             || (fichas[i-1].numero == 99 || fichas[i].numero == 99)) {
             OAK = 1;
             tamOAK++;

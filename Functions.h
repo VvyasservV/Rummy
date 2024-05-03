@@ -30,7 +30,7 @@ void revolver(struct Fichas *array, int n);
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores);
 void imprimirManoActual(struct Jugador *actual);
 void imprimirIndices(struct Jugador *actual);
-void ordenarMano(struct Fichas *fichas[TAM_MAX], int n);
+void ordenarMano(struct Fichas fichas[TAM_MAX], int n);
 bool isJoker(int Joker);
 void comer(struct ColaJugadores *cola, struct Pila *pila);
     //Funciones para el tablero
