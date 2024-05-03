@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "Functions.h"
 #include "Structs.h"
+#include "Functions.h"
 
 int main() {
     int random;
@@ -28,7 +28,7 @@ int main() {
     struct Fichas Baraja[4][26];
     struct Fichas Comodin[2];
     struct ColaJugadores cola, colaResultados;
-    struct Pila pila, bote;
+    struct Pila pila;
 
     // Crear la baraja y los comodines
     createInitialDeck(Baraja);
@@ -38,7 +38,6 @@ int main() {
     inicializarCola(&cola);
     inicializarCola(&colaResultados);
     inicializarPila(&pila);
-    inicializarPila(&bote);
     // Insertar jugadores en la cola
     for (int i = 0; i < jugadoresConsola; i++) {
         char nombre[50];
@@ -74,70 +73,79 @@ int main() {
         else
             printf("POZO VACIO!\n");
         colorReset();
-        if(bote.top != 0)
-            if(isJoker(bote.array[bote.top-1].numero)) printf("POZO DE DESCARTES: %sJ\n", bote.array[bote.top-1].color);
-            else printf("POZO DE DESCARTES: %s%d\n", bote.array[bote.top-1].color, bote.array[bote.top-1].numero);
-        else
-            printf("POZO DE DESCARTES VACIO!\n");
         colorReset();
         printf("Mesa:\n");
         if(cola.frente->esBot==0){
+            opcion = 0;
             //Logica del user
             if(cola.frente->jugadorActivo==0){
                 //Primera tirada
-                while(opcion != 1 && opcion != 2){
+                while(opcion != 3){
                     printf("\n1....Iniciar jugada\n");
-                    printf("2....Comer y pasar\n");
-                    printf("3...Ordenar fichas\n");
+                    printf("2...Ordenar fichas\n");
+                    printf("3...Comer y pasar");
                     scanf("%d", &opcion);
-                    if(opcion != 1 && opcion != 2 && opcion != 3){
-                        printf("Opcion incorrecta, intentalo de nuevo\n");
-                        scanf("%d", &opcion);
-                        PCTurn(2);
-                    }
-                    if(opcion == 3){
+                    switch (opcion){
+                    case 1:
+                        ClearPlayerTurn();
+                        jugadaInicial(&cola, &pila);
+                        break;
+                    case 2:
                         ordenarMano(&cola.frente->mano, cola.frente->numCartas);             
                         printf("Mano ordenada\n");
                         imprimirManoActual(cola.frente);
                         colorReset();
-                    }
-                }
-                if(opcion == 1){
-                    ClearPlayerTurn();
-                    jugadaInicial(&cola, &pila, &bote);
-                }else if(opcion == 2){
-                    comer(&cola, &pila, &bote);
-                }
-                descartar(&cola, &bote);
-                finTurno(&cola);
-            }else{
-                //Segunda tirada, todas las funciones desbloqueadas
-                while(opcion != 1 && opcion != 2){
-                    printf("1....Iniciar jugada\n");
-                    printf("2....Comer y pasar\n");
-                    printf("3...Ordenar fichas\n");
-                    scanf("%d", &opcion);
-                    if(opcion != 1 && opcion != 2 && opcion != 3){
+                        break;
+                    case 3: 
+                        comer(&cola, &pila);
+                        break;
+                    default:
                         printf("Opcion incorrecta, intentalo de nuevo\n");
                         scanf("%d", &opcion);
                         PCTurn(2);
-                    }
-                    if(opcion == 3){
-                        ordenarMano(&cola.frente->mano, &cola.frente->numCartas);
+                        break;
                     }
                 }
-                if(opcion == 1){
-                    ClearPlayerTurn();
-                }else if(opcion == 2){
-                    comer(&cola, &pila, &bote);
+                finTurno(&cola);
+            }else{
+                //Segunda tirada, todas las funciones desbloqueadas
+                while(opcion != 4){
+                    printf("1....Iniciar jugada\n");
+                    printf("2...Ordenar fichas\n");
+                    printf("3...Modificar jugada existente\n");
+                    printf("4...Comer y pasar\n");
+                    scanf("%d", &opcion);
+                    switch (opcion)
+                    {
+                    case 1:
+                        /* code */
+                        break;
+                    case 2: 
+                        ordenarMano(&cola.frente->mano, cola.frente->numCartas);
+                        break;
+                    case 3:
+                        printf("Selecciona el tipo de jugada a realizar:\n");
+                        printf("1.....Agregar ficha a jugada existente\n");
+                        printf("2.....Robar ficha de jugada existente\n");
+                        scanf("%d", &opcion);
+                        if(opcion == 1){
+
+                        }else if(opcion == 2){
+
+                        }else{
+                            printf("Opcion invalida, intentalo de nuevo");
+                        }
+                    default:
+                        printf("Opcion invalida, intentalo de nuevo\n");
+                        scanf("%d", &opcion);
+                        PCTurn(2);
+                    }
                 }
-                descartar(&cola, &bote);
                 finTurno(&cola);
             }
         }else{
             //Logica del bot
-            comer(&cola, &pila, &bote);
-            descartar(&cola, &bote);
+            comer(&cola, &pila);
             finTurno(&cola);
             if(cola.frente->jugadorActivo==0){
                 //Primera tirada
@@ -146,10 +154,6 @@ int main() {
                 //Segunda tirada, todas las funciones desbloqueadas
             }
         }
-        /*descartar(&cola, &bote);
-        if(random==0)
-            comer(&cola, &pila, &bote);
-        */
         revisarSalida(&cola, &colaResultados, &jugadoresActuales);
         opcion=0;
     }
