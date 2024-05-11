@@ -24,6 +24,7 @@ void inicializarCola(struct ColaJugadores *cola);
 void inicializarPila(struct Pila *pila);
 void inicializarTablero(struct Tablero *tablero);
 void inicializarJugada(struct Jugada *jugada);
+void inicializarColaCartas(struct colaCartas *colaCartas);
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
 void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
 void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
@@ -49,7 +50,15 @@ struct Fichas robarPorDerecha(struct Jugada *jugada);
 // Funciones para el jugador
 int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot);
 int jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila *pila);
+void jugadaNormal(struct Tablero *tablero, struct ColaJugadores *cola);
+int iniciarJugadaNormal(struct Jugador *actual, int *arrIndices);
 int iniciarJugada(struct Jugador *actual, int indices[MAX_COLS]);
+void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *cola);
+void robarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *cola);
+//Funciones para el bot
+void jugadaBot(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila *pila);
+void agregarCartaACola(struct colaCartas *cola, struct Fichas carta, int indice);
+void eliminarCartaDeMano(struct Jugador *jugador, int indice);
 // Funciones de control de juego
 void finTurno(struct ColaJugadores *cola);
 void revisarSalida(struct ColaJugadores *cola, struct ColaJugadores *colaResultados, int *jugadoresActuales);
