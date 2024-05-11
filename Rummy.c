@@ -86,6 +86,7 @@ int main()
         colorReset();
         if (cola.frente->esBot == 0)
         {
+            cola.frente->jugadaRealizada = 0;
             opcion = 0;
             // Logica del user
             if (cola.frente->jugadorActivo == 0)
@@ -102,7 +103,7 @@ int main()
                     {
                     case 1:
                         ClearPlayerTurn();
-                        jugadorActivo = jugadaInicial(&tablero, &cola, &pila);
+                        jugadaInicial(&tablero, &cola, &pila);
                         colorReset();
                         opcion = 3;
                         break;
@@ -131,12 +132,18 @@ int main()
                     printf("1....Iniciar jugada\n");
                     printf("2...Ordenar fichas\n");
                     printf("3...Modificar jugada existente\n");
-                    printf("4...Comer y pasar\n");
+                    if(cola.frente->jugadaRealizada == 0)
+                        printf("4...Comer y pasar\n");
+                    else
+                        printf("4...Terminar turno\n");
                     scanf("%d", &opcion);
                     switch (opcion)
                     {
                     case 1:
-                        /* code */
+                        ClearPlayerTurn();
+                        jugadaNormal(&tablero, &cola);
+                        colorReset();
+                        opcion = 3;
                         break;
                     case 2:
                         ordenarMano(cola.frente->mano, cola.frente->numCartas);
@@ -148,14 +155,23 @@ int main()
                         scanf("%d", &opcion);
                         if (opcion == 1)
                         {
+                            agregarFichaAJugadaExistente(&tablero, &cola);
                         }
                         else if (opcion == 2)
                         {
+                            robarFichaAJugadaExistente(&tablero, &cola);
                         }
                         else
                         {
                             printf("Opcion invalida, intentalo de nuevo");
                         }
+                        break;
+                    case 4:
+                        if(cola.frente->jugadaRealizada == 0)
+                            comer(&cola, &pila);
+                        else
+                            finTurno(&cola);
+                        break;
                     default:
                         printf("Opcion invalida, intentalo de nuevo\n");
                         scanf("%d", &opcion);
@@ -166,8 +182,7 @@ int main()
         }
         else
         {
-            // Logica del bot
-            comer(&cola, &pila);
+            jugadaBot(&tablero, &cola, &pila);
         }
         revisarSalida(&cola, &colaResultados, &jugadoresActuales);
         opcion = 0;
