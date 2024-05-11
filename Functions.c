@@ -196,7 +196,7 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     tempBaraja[idx++] = comodin[0];
     tempBaraja[idx++] = comodin[1];
     // Barajar el arreglo de cartas
-    // DEPURACION revolver(tempBaraja, totalCartas);
+    revolver(tempBaraja, totalCartas);
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++)
     {
@@ -1195,7 +1195,7 @@ void jugadaBot(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila 
                     int pos = color->indices[--k];
                     eliminarCartaDeMano(actual, pos);
                 }
-                if (sumaCartas >= 25 || actual->jugadorActivo == 1 || (actual->jugadorActivo == 1 && k == 13))
+                if (sumaCartas >= 25 || actual->jugadorActivo == 1)
                 {
                     agregarJugada(tablero, nuevaJugada);
                     actual->jugadorActivo = 1;
