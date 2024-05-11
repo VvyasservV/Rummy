@@ -8,31 +8,19 @@
 #else
 #include <unistd.h>
 #endif
-/*
-------------------Indice-----------------------
-Funciones generales.........................23
-Funciones de inicio del juego...............48
-Funciones para el juego.....................204
-    Funciones para el tablero...............345
-    Modificar jugadas en tablero............---
-        Agregar fichas a juego existente....363
-        Robar fichas a juego existente......399
-    Funciones de jugador....................446
-    Funciones de control de juego...........572
-Funciones de final de juego.................624
-*/
 
-// Funciones generales
 int randomNumber()
 {
     srand(time(NULL));
     int random = rand() % 5;
     return random;
 }
+
 void colorReset()
 {
     printf(BLANCO "");
 }
+
 void ClearPlayerTurn()
 {
 #ifdef _WIN32
@@ -41,6 +29,7 @@ void ClearPlayerTurn()
     system("clear");
 #endif
 }
+
 void PCTurn(int i)
 {
 #ifdef _WIN32
@@ -51,7 +40,7 @@ void PCTurn(int i)
     system("clear");
 #endif
 }
-// Funciones de inicio del juego
+
 void createInitialDeck(struct Fichas Baraja[4][26])
 {
     srand(time(NULL));
@@ -61,26 +50,18 @@ void createInitialDeck(struct Fichas Baraja[4][26])
         Baraja[0][i].numero = (i % 13) + 1;
         Baraja[0][i].color = VERDE;
         Baraja[0][i].asignada = false;
-    }
-    for (i = 0; i < 26; i++)
-    {
         Baraja[1][i].numero = (i % 13) + 1;
         Baraja[1][i].color = AZUL;
         Baraja[1][i].asignada = false;
-    }
-    for (i = 0; i < 26; i++)
-    {
         Baraja[2][i].numero = (i % 13) + 1;
         Baraja[2][i].color = NARANJA;
         Baraja[2][i].asignada = false;
-    }
-    for (i = 0; i < 26; i++)
-    {
         Baraja[3][i].numero = (i % 13) + 1;
         Baraja[3][i].color = ROSA;
         Baraja[3][i].asignada = false;
     }
 }
+
 void createJokers(struct Fichas Comodin[2])
 {
     int i;
@@ -91,23 +72,30 @@ void createJokers(struct Fichas Comodin[2])
         Comodin[i].asignada = false;
     }
 }
+
 void inicializarCola(struct ColaJugadores *cola)
 {
     cola->frente = NULL;
     cola->trasero = NULL;
 }
+
 void inicializarPila(struct Pila *pila)
 {
     pila->top = 0; // Inicializar el top de la pila en 0
 }
-void inicializarTablero(struct Tablero *tablero) {
+
+void inicializarTablero(struct Tablero *tablero)
+{
     tablero->cabeza = NULL;
     tablero->tamanio = 0;
 }
-void inicializarJugada(struct Jugada *jugada) {
+
+void inicializarJugada(struct Jugada *jugada)
+{
     jugada->cabeza = NULL;
     jugada->tamanio = 0;
 }
+
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot)
 {
     struct Jugador *nuevoJugador = (struct Jugador *)malloc(sizeof(struct Jugador));
@@ -132,11 +120,10 @@ void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot)
     {
         cola->trasero->siguiente = nuevoJugador;
     }
-
     cola->trasero = nuevoJugador;
-
     cola->trasero->siguiente = cola->frente;
 }
+
 void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores)
 {
     if (totalJugadores <= 0)
@@ -144,23 +131,19 @@ void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores)
         printf("Error: totalJugadores es 0 o negativo.\n");
         return; // Si no hay jugadores, no se hace nada
     }
-
     if (cola->frente == NULL)
     {
         printf("Error: la cola esta vacia.\n");
         return; // Si la cola esta vacia, no hay nada que mezclar
     }
-
     struct Jugador *jugadores[MAX_JUGADORES];
     struct Jugador *actual = cola->frente;
-
     // Cargar todos los jugadores en un arreglo
     for (int i = 0; i < totalJugadores; i++)
     {
         jugadores[i] = actual;
         actual = actual->siguiente;
     }
-
     for (int i = totalJugadores - 1; i > 0; i--)
     {
         int j = rand() % (i + 1); // indice aleatorio
@@ -169,7 +152,6 @@ void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores)
         jugadores[i] = jugadores[j];
         jugadores[j] = temp;
     }
-
     // Reconectar la cola para mantener la circularidad
     for (int i = 0; i < totalJugadores - 1; i++)
     {
@@ -178,12 +160,12 @@ void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores)
     jugadores[totalJugadores - 1]->siguiente = jugadores[0]; // Circularidad
     cola->frente = jugadores[0];                             // Nuevo frente
     cola->trasero = jugadores[totalJugadores - 1];           // Nuevo trasero
-
     for (int i = 0; i < totalJugadores; i++)
     {
         printf("Jugador %d: %s\n", i + 1, jugadores[i]->nombre);
     }
 }
+
 void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],
                          struct Fichas comodin[2], int totalJugadores, struct Pila *pila)
 {
@@ -191,7 +173,6 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     int cartaPila = 0;
     int totalCartas = 4 * 26 + 2;    // Total de cartas en la baraja, incluyendo los comodines
     int totalManos = totalJugadores; // Total de manos que se repartiran
-
     // Crear un arreglo temporal para barajar las cartas
     struct Fichas tempBaraja[4 * 26 + 2];
     int idx = 0, k = 0;
@@ -205,10 +186,8 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     // Agregar los comodines al arreglo temporal
     tempBaraja[idx++] = comodin[0];
     tempBaraja[idx++] = comodin[1];
-
     // Barajar el arreglo de cartas
-    revolver(tempBaraja, totalCartas);
-
+    //DEPURACION revolver(tempBaraja, totalCartas);
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++)
     {
@@ -229,7 +208,6 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
         // Avanzar al siguiente jugador despues de repartir todas las cartas de la mano actual
         actual = actual->siguiente;
     }
-
     // Llenar la pila con las cartas restantes
     for (; k < totalCartas; k++)
     {
@@ -248,40 +226,37 @@ void revolver(struct Fichas *array, int n)
         array[i] = temp;
     }
 }
-
-// Funciones para el juego
+void imprimirJugada(struct Jugada *jugadaActual)
+{
+    struct Nodo *fichaActual = jugadaActual->cabeza;
+    // Recorre la jugada para imprimir todas las fichas
+    do
+    {
+        printf("%s%d ", fichaActual->ficha.color, fichaActual->ficha.numero);
+        fichaActual = fichaActual->siguiente;
+    } while (fichaActual != jugadaActual->cabeza);
+    printf("%s\n", BLANCO);
+}
 void imprimirTablero(struct Tablero *tablero)
 {
     if (tablero->cabeza == NULL)
     {
-        printf("El tablero esta vacio.\n");
+        printf("El tablero está vacío.\n");
         return;
     }
 
     struct NodoTablero *jugadaActual = tablero->cabeza;
     int jugadaNumero = 1;
-
     // Recorre el tablero
-    
-    printf("--Jugadas en el tablero--\n");
+    printf("-- Jugadas en el tablero --\n");
     do
     {
         printf("Jugada %d:\n", jugadaNumero);
-        struct Nodo *fichaActual = jugadaActual->lista->cabeza;
-
-        
-        // Recorre la jugada para imprimir todas las fichas
-        do
-        {
-            printf("%s%d ", fichaActual->ficha.color, fichaActual->ficha.numero);
-            fichaActual = fichaActual->siguiente;
-
-        } while (fichaActual != jugadaActual->lista->cabeza);
-
+        imprimirJugada(jugadaActual->jugada);
         jugadaActual = jugadaActual->siguiente;
         jugadaNumero++;
 
-    } while (jugadaActual != tablero->cabeza); // Mientras no vuelvas al principio del tablero
+    } while (jugadaActual != tablero->cabeza); // Mientras no vuelva al principio del tablero
 }
 
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores)
@@ -310,6 +285,7 @@ void imprimirManos(struct ColaJugadores *cola, int totalJugadores)
         actual = actual->siguiente;
     }
 }
+
 void imprimirManoActual(struct Jugador *actual)
 {
     for (int j = 0; j < actual->numCartas; j++)
@@ -320,6 +296,7 @@ void imprimirManoActual(struct Jugador *actual)
             printf("%s%d\t", actual->mano[j].color, actual->mano[j].numero);
     }
 }
+
 void imprimirIndices(struct Jugador *actual)
 {
     printf("%s", BLANCO);
@@ -328,6 +305,7 @@ void imprimirIndices(struct Jugador *actual)
         printf("%d\t", (j + 1));
     }
 }
+
 void ordenarMano(struct Fichas fichas[TAM_MAX], int n)
 {
     if (n <= 1)
@@ -340,8 +318,8 @@ void ordenarMano(struct Fichas fichas[TAM_MAX], int n)
         struct Fichas key = fichas[i]; // Guarda la ficha actual
         int j = i - 1;
         // Compara primero por numero y luego por color
-        while (j >= 0 && (fichas[j].numero > key.numero || 
-            (fichas[j].numero == key.numero && strcmp(fichas[j].color, key.color) > 0)))
+        while (j >= 0 && (fichas[j].numero > key.numero ||
+                          (fichas[j].numero == key.numero && strcmp(fichas[j].color, key.color) > 0)))
         {
             fichas[j + 1] = fichas[j]; // Desplaza la ficha hacia la derecha
             j--;                       // Mueve el indice hacia la izquierda
@@ -350,13 +328,13 @@ void ordenarMano(struct Fichas fichas[TAM_MAX], int n)
         fichas[j + 1] = key;
     }
 }
-
 bool isJoker(int Joker)
 {
     if (Joker == 99)
         return 1;
     return 0;
 }
+
 void comer(struct ColaJugadores *cola, struct Pila *pila)
 {
     struct Jugador *actual = cola->frente;
@@ -369,10 +347,11 @@ void comer(struct ColaJugadores *cola, struct Pila *pila)
 }
 
 // Funciones para el tablero
-void agregarJugada(struct Tablero *tablero, struct Jugada *nueva_lista)
+
+void agregarJugada(struct Tablero *tablero, struct Jugada *nuevaJugada)
 {
     struct NodoTablero *nuevo_nodo = (struct NodoTablero *)malloc(sizeof(struct NodoTablero));
-    nuevo_nodo->lista = nueva_lista;
+    nuevo_nodo->jugada = nuevaJugada;
 
     if (tablero->cabeza == NULL)
     {
@@ -392,12 +371,12 @@ void agregarJugada(struct Tablero *tablero, struct Jugada *nueva_lista)
 
     // Imprimir la jugada en el tablero
     printf("Jugada %d agregada:\n", tablero->tamanio);
-    struct Nodo *actual = nueva_lista->cabeza;
+    struct Nodo *actual = nuevo_nodo->jugada->cabeza;
     do
     {
         printf("%s%d ", actual->ficha.color, actual->ficha.numero);
         actual = actual->siguiente;
-    }while (actual != nueva_lista->cabeza);
+    } while (actual != nuevaJugada->cabeza);
     printf("%s\n", BLANCO); // Imprimir el color de la ficha de la jugada
 }
 
@@ -424,6 +403,7 @@ void agregarFichaPorDerecha(struct Jugada *jugada, struct Fichas valor)
 
     jugada->tamanio++;
 }
+
 void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor)
 {
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
@@ -446,6 +426,7 @@ void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor)
     }
     jugada->tamanio++;
 }
+
 // Robar fichas a juego existente
 struct Fichas robarPorIzquierda(struct Jugada *jugada)
 {
@@ -474,6 +455,7 @@ struct Fichas robarPorIzquierda(struct Jugada *jugada)
 
     return resultado;
 }
+
 struct Fichas robarPorDerecha(struct Jugada *jugada)
 {
     if (jugada->cabeza == NULL)
@@ -513,206 +495,26 @@ void imprimirIndicesJugadas(int ListSize)
 
 // Funciones para el jugador
 // Funciones jugadorActivo = 0 (Jugador no ha sumado 25 puntos)
-bool detectarDuplicados(int indices[MAX_ROWS][MAX_COLS], int totalFilas, int columnas)
+int jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila *pila)
 {
-    for (int i = 0; i < totalFilas - 1; i++)
+    int indices[MAX_COLS];
+    for (int i = 0; i < MAX_COLS; i++)
+        indices[i] = -1;
+    struct Jugada *nuevaJugada = (struct Jugada *)malloc(sizeof(struct Jugada));
+    inicializarJugada(nuevaJugada);
+    struct Jugador *actual = cola->frente;
+    for (int i = 0; i < MAX_ROWS; i++)
     {
-        if (indices[i][0] == -1)
-        {
-            continue; // Saltar a la siguiente fila si la fila actual comienza con -1
-        }
-        for (int j = i + 1; j < totalFilas; j++)
-        {
-            if (indices[j][0] == -1)
-            {
-                continue; // Saltar a la siguiente fila si la fila actual comienza con -1
-            }
-            for (int k = 0; k < columnas; k++)
-            {
-                if (indices[i][k] == -1 || indices[j][k] == -1)
-                {
-                    continue; // Ignorar elementos invalidos
-                }
-                if (indices[i][k] == indices[j][k])
-                {
-                    return true; // Se encontro un duplicado
-                }
-            }
-        }
+        indices[i] = -1;
     }
-    return false; // No se encontraron duplicados
-}
-
-// Funcion para detectar duplicados en una fila
-
-// Funcion para resolver duplicados en una fila y decidir si eliminarla
-int resolverDuplicados(int indices[MAX_ROWS][MAX_COLS], int fila, int columnas, struct Fichas *mano)
-{
-    if (detectarDuplicados(indices, fila, columnas))
+    int sumaCartas = 0, finJugada = 0, i = 0;
+    while (sumaCartas < 25)
     {
-        printf("Se encontraron duplicados en la fila %d.\n", fila);
-        printf("Cartas duplicadas: ");
-        for (int i = 0; i < columnas; i++)
-        {
-            if (indices[fila][i] != -1)
-            {
-                printf("%s%d%s",mano[indices[fila][i]].color, mano[indices[fila][i]].numero, (i < columnas - 1) ? ", " : "\n");
-            }
-        }
-        printf("Elija la fila a conservar:\n");
-        printf("1... Mantener la fila actual\n");
-        printf("2... Eliminar duplicados y conservar fila %d\n", fila);
-
-        int eleccion;
-        scanf("%d", &eleccion);
-
-        if (eleccion == 1)
-        {
-            // Eliminar duplicados de la fila seleccionada
-            for (int i = 0; i < columnas; i++)
-            {
-                if (indices[fila][i] == -1)
-                {
-                    continue; // Ignorar elementos invalidos
-                }
-                for (int j = i + 1; j < columnas; j++)
-                {
-                    if (indices[fila][j] == indices[fila][i])
-                    {
-                        indices[fila][j] = -1; // Eliminar duplicados
-                    }
-                }
-            }
-            return -2; // Retorna -2 para indicar que se mantuvo la fila actual
-        }
-        else if (eleccion == 2)
-        {
-            // Sumar las cartas de la fila que se va a eliminar
-            int sumaCartas = 0;
-            for (int i = 0; i < columnas; i++)
-            {
-                if (indices[fila][i] != -1)
-                {
-                    sumaCartas += mano[indices[fila][i]].numero;
-                }
-            }
-            // Marcar la fila para eliminarla
-            for (int i = 0; i < MAX_ROWS; i++)
-            {
-                if (indices[i][0] == fila)
-                {
-                    for (int j = 0; j < MAX_COLS; j++)
-                    {
-                        indices[i][j] = -1; // Rellenar la fila con -1 para indicar que esta eliminada
-                    }
-                    return sumaCartas; // Retorna la suma de las cartas de la fila eliminada
-                }
-            }
-        }
-        else
-        {
-            printf("Opcion no valida. No se realizo ninguna accion.\n");
-            return -1; // Retorna -1 si no se realizo ninguna accion valida
-        }
-    }
-    return -1; // Retorna -1 si no se encontraron duplicados
-}
-
-void ajustar_indices(int matriz[MAX_ROWS][MAX_COLS], int fila_eliminada[], int fila_size, int total_rows)
-{
-    // Crear un array de flags para marcar indices eliminados
-    bool eliminado[MAX_COLS] = {false};
-
-    // Marcar indices eliminados
-    for (int i = 0; i < fila_size; i++)
-    {
-        int index = fila_eliminada[i];
-        if (index >= 0 && index < MAX_COLS)
-        {
-            eliminado[index] = true; // Marcar como eliminado
-        }
-    }
-
-    // Ajustar filas posteriores segun los indices eliminados
-    for (int row = 0; row < total_rows; row++)
-    {
-        for (int col = 0; col < MAX_COLS; col++)
-        {
-            int original = matriz[row][col];
-            if (original == -1)
-            {
-                continue; // Ignorar elementos ya eliminados
-            }
-
-            int offset = 0;
-
-            // Calcular offset segun cuantos indices eliminados estan antes del indice actual
-            for (int i = 0; i < original; i++)
-            {
-                if (eliminado[i])
-                {
-                    offset++; // Incrementa el offset para cada indice eliminado
-                }
-            }
-
-            // Ajustar el indice restando el offset
-            int ajustado = original - offset;
-
-            if (ajustado < 0)
-            { // Si el resultado es negativo, significa que se elimino
-                matriz[row][col] = -1;
-            }
-            else
-            {
-                matriz[row][col] = ajustado;
-            }
-        }
-    }
-}
-
-void jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila *pila)
-{
-    int indices[MAX_ROWS][MAX_COLS];
-    struct Jugada nuevaJugada;
-    inicializarJugada(&nuevaJugada);
-    struct Jugador actual = *cola->frente;
-    for (int i = 0; i < MAX_ROWS; i++){
-        for(int j = 0; j < MAX_COLS; j++)
-            indices[i][j] = -1;
-    }
-    int sumaCartas = 0, finJugada = 0, i = 0, c, jugadaValida, k = 0;
-    while (sumaCartas < 25 || finJugada != 2)
-    {
-        c = 0;
         ClearPlayerTurn();
-        int sumaActual = iniciarJugada(&actual, indices[i]); // Calcular la suma de la jugada actual
-        while (indices[i][c] != -1)
-            c++;
-        resolverDuplicados(indices, i, c, actual.mano); // Resolver duplicados despues de iniciar jugada
-
-        // Verificar si hay duplicados y si se debe mantener la fila anterior o la nueva
-        if (indices[i][0] != -1)
-        {
-            sumaCartas += sumaActual; // Sumar la nueva jugada solo si no hay duplicados o si se elige la nueva jugada
-            i++;
-        }
-
+        sumaCartas = iniciarJugada(actual, indices); // Calcular la suma de la jugada actual
         printf("La suma de tus fichas en juego es de: %d\n", sumaCartas);
 
-        // Opciones para agregar mas jugadas
-        while (finJugada != 1 && finJugada != 2)
-        {
-            printf("Deseas realizar otra jugada?\n");
-            printf("1....Si\n");
-            printf("2....No\n");
-            scanf("%d", &finJugada);
-            if (finJugada != 1 && finJugada != 2)
-            {
-                printf("Opcion no valida, intenta de nuevo");
-            }
-        }
-
-        if (finJugada == 2 && sumaCartas < 25)
+        if (sumaCartas < 25)
         {
             printf("Suma insuficiente. ¿Deseas salir?\n");
             printf("1....No\n");
@@ -721,44 +523,35 @@ void jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct P
             if (finJugada == 2)
             {
                 comer(cola, pila);
-                break;
+                return 0;
             }
         }
     }
 
-    if (sumaCartas >= 25)
+    // Procesar las jugadas
+    for (int j = 0; indices[j] != -1; j++)
     {
-        // Procesar las jugadas
-        printf("Procesando jugada\n");
-        for (int j = 0; j < i; j++)
-        {
-            if (indices[j][0] != -1)
-            { // Solo procesar filas validas
-                k = 0;
-                while (indices[j][k] != -1)
-                {
-                    agregarFichaPorDerecha(&nuevaJugada, actual.mano[indices[j][k]]);
-                    k++;
-                }
-                printf("Jugada correctamente agregada\n");
-                // Eliminar las fichas utilizadas
-                while (k > 0)
-                {
-                    int pos = indices[j][--k];
-                    for (int h = pos; h < actual.numCartas - 1; h++)
-                    {
-                        actual.mano[h] = actual.mano[h + 1];
-                    }
-                    actual.numCartas--;
-                }
-                imprimirManoActual(&actual);
-                agregarJugada(tablero, &nuevaJugada);
-                finTurno(cola);
-            }
-        }
-        actual.jugadorActivo = 1; // El jugador ya hizo su jugada inicial
-
+        agregarFichaPorDerecha(nuevaJugada, actual->mano[indices[j]]);
+        i++;
     }
+    printf("Jugada correctamente agregada\n");
+    // Eliminar las fichas utilizadas
+    while (i > 0)
+    {
+        int pos = indices[--i];
+        for (int h = pos; h < actual->numCartas - 1; h++)
+        {
+            actual->mano[h] = actual->mano[h + 1];
+        }
+        actual->numCartas--;
+    }
+    imprimirManoActual(actual);
+    agregarJugada(tablero, nuevaJugada);
+    imprimirJugada(nuevaJugada);
+    PCTurn(2);
+    actual->jugadorActivo = 1; // El jugador ya hizo su jugada inicial
+    finTurno(cola);
+    return 1;
 }
 
 int iniciarJugada(struct Jugador *actual, int *arrIndices)
@@ -849,8 +642,7 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
         else
         {
             if (tipoJugada == 1)
-            {
-                // corrida
+            { // corrida
                 int valorComodin = obtenerValorComodin(actual->mano, arrIndices, arrSize);
                 sumaCartas += valorComodin;
             }
@@ -863,7 +655,6 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
             }
         }
     }
-
     return sumaCartas;
 }
 
@@ -896,21 +687,25 @@ int obtenerValorComodin(struct Fichas *mano, int *arrIndices, int arrSize)
         return valorMasBajo - 1;
     }
 }
-
 int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot)
 {
     // Ordena el arreglo para verificar las corridas
     ordenarMano(fichas, arrSize);
 
     // Verifica corridas
+    int corrida = 0;
     for (int i = 0; i < arrSize - 1; i++)
     {
-        if ((fichas[i + 1].numero == fichas[i].numero + 1 &&
+        if ((fichas[i + 1].numero == (fichas[i].numero + 1) &&
              strcmp(fichas[i + 1].color, fichas[i].color) == 0) ||
-            (fichas[i + 1].numero == 99 && i == arrSize - 2))
-        {             // Corrida encontrada
-            return 1; // Corrida
+            (fichas[i + 1].numero == 99 && i == arrSize - 1))
+        {              // Corrida no encontrada
+            corrida++; // Corrida
         }
+    }
+    if (corrida == arrSize - 1)
+    {
+        return 1; // Corrida
     }
 
     // Verifica "OAK" (Tres iguales)
@@ -920,8 +715,8 @@ int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot)
         for (int i = 0; i < arrSize - 1; i++)
         {
             if ((fichas[i + 1].numero == fichas[i].numero &&
-                strcmp(fichas[i + 1].color, fichas[i].color) != 0) ||
-                 (fichas[i + 1].numero == 99 && i == arrSize - 2))
+                 strcmp(fichas[i + 1].color, fichas[i].color) != 0) ||
+                (fichas[i + 1].numero == 99 && i == arrSize - 2))
             {
                 OAK++;
             }

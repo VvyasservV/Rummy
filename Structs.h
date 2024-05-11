@@ -1,7 +1,9 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
+
 #include <stdbool.h>
 #include <stddef.h>
+
 #define TAM_MAX 106
 
 struct Fichas {
@@ -9,22 +11,22 @@ struct Fichas {
     char *color;
     bool asignada;
 };
-//Nodo Jugada
+
 struct Nodo {
     struct Fichas ficha;
-    struct Nodo* siguiente;
-    struct Nodo* anterior;
+    struct Nodo *siguiente;
+    struct Nodo *anterior;
 };
 
 struct Jugada {
     struct Nodo *cabeza;
     int tamanio;
 };
-//Nodo tablero
+
 struct NodoTablero {
     struct NodoTablero *siguiente;
     struct NodoTablero *anterior;
-    struct Jugada *lista;
+    struct Jugada *jugada;
 };
 
 struct Tablero {

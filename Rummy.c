@@ -36,12 +36,13 @@ int main()
     // Crear la baraja y los comodines
     createInitialDeck(Baraja);
     createJokers(Comodin);
-
+    int jugadorActivo = 0;
     // Inicializar la cola de jugadores
     inicializarCola(&cola);
     inicializarCola(&colaResultados);
     inicializarPila(&pila);
     inicializarTablero(&tablero);
+
     // Insertar jugadores en la cola
     for (int i = 0; i < jugadoresConsola; i++)
     {
@@ -89,13 +90,10 @@ int main()
             // Logica del user
             if (cola.frente->jugadorActivo == 0)
             {
+                jugadorActivo = 0;
                 // Primera tirada
                 while (opcion != 3)
                 {
-                    if (cola.frente->jugadorActivo == 1){
-                        opcion = 3;
-                        break;
-                    }
                     printf("\n1....Iniciar jugada\n");
                     printf("2...Ordenar fichas\n");
                     printf("3...Comer y pasar\n");
@@ -104,7 +102,9 @@ int main()
                     {
                     case 1:
                         ClearPlayerTurn();
-                        jugadaInicial(&tablero, &cola, &pila);
+                        jugadorActivo = jugadaInicial(&tablero, &cola, &pila);
+                        colorReset();
+                        opcion = 3;
                         break;
                     case 2:
                         ordenarMano(cola.frente->mano, cola.frente->numCartas);
