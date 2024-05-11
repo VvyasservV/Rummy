@@ -4,19 +4,22 @@
 #include "Structs.h"
 #include "Functions.h"
 
-int main() {
+int main()
+{
     int random;
     colorReset();
     int jugadoresActuales, totalJugadores = 0, jugadoresConsola = -1, bots = 0, opcion = 0;
 
     // Pedir al usuario el número total de jugadores
-    while (totalJugadores < 2 || totalJugadores > 4) {
+    while (totalJugadores < 2 || totalJugadores > 4)
+    {
         printf("Ingrese el numero total de jugadores (entre 2 y 4): ");
         scanf("%d", &totalJugadores);
     }
     jugadoresActuales = totalJugadores;
     // Pedir al usuario el número de jugadores en consola
-    while (jugadoresConsola < 0 || jugadoresConsola > totalJugadores) {
+    while (jugadoresConsola < 0 || jugadoresConsola > totalJugadores)
+    {
         printf("Ingrese el numero de jugadores en consola (entre 0 y %d): ", totalJugadores);
         scanf("%d", &jugadoresConsola);
     }
@@ -29,7 +32,7 @@ int main() {
     struct Fichas Comodin[2];
     struct ColaJugadores cola, colaResultados;
     struct Pila pila;
-
+    struct Tablero tablero;
     // Crear la baraja y los comodines
     createInitialDeck(Baraja);
     createJokers(Comodin);
@@ -38,16 +41,19 @@ int main() {
     inicializarCola(&cola);
     inicializarCola(&colaResultados);
     inicializarPila(&pila);
+    inicializarTablero(&tablero);
     // Insertar jugadores en la cola
-    for (int i = 0; i < jugadoresConsola; i++) {
+    for (int i = 0; i < jugadoresConsola; i++)
+    {
         char nombre[50];
-        printf("Ingrese el nombre del jugador %d: ", i+1);
+        printf("Ingrese el nombre del jugador %d: ", i + 1);
         scanf("%49s", nombre);
         insertarJugador(&cola, nombre, false);
     }
-    for (int i = 0; i < bots; i++) {
+    for (int i = 0; i < bots; i++)
+    {
         char bot[50];
-        sprintf(bot, "Bot %d", i+1);
+        sprintf(bot, "Bot %d", i + 1);
         insertarJugador(&cola, bot, true);
     }
     ClearPlayerTurn();
@@ -58,45 +64,55 @@ int main() {
     repartirCartasYPila(&cola, Baraja, Comodin, totalJugadores, &pila);
 
     // Imprimir la pila
-    while (cola.frente != NULL){
-        if(jugadoresConsola == 0)
+    while (cola.frente != NULL)
+    {
+        if (jugadoresConsola == 0)
             PCTurn(1);
         else
             ClearPlayerTurn();
-        random  = randomNumber();
+        random = randomNumber();
         colorReset();
         // Imprimir las manos de los jugadores
         imprimirManos(&cola, jugadoresActuales);
         colorReset();
-        if(pila.top != 0)
+        if (pila.top != 0)
             printf("POZO: %d\n", pila.top);
         else
             printf("POZO VACIO!\n");
         colorReset();
-        colorReset();
         printf("Mesa:\n");
-        if(cola.frente->esBot==0){
+        imprimirTablero(&tablero);
+        colorReset();
+        if (cola.frente->esBot == 0)
+        {
             opcion = 0;
-            //Logica del user
-            if(cola.frente->jugadorActivo==0){
-                //Primera tirada
-                while(opcion != 3){
+            // Logica del user
+            if (cola.frente->jugadorActivo == 0)
+            {
+                // Primera tirada
+                while (opcion != 3)
+                {
+                    if (cola.frente->jugadorActivo == 1){
+                        opcion = 3;
+                        break;
+                    }
                     printf("\n1....Iniciar jugada\n");
                     printf("2...Ordenar fichas\n");
-                    printf("3...Comer y pasar");
+                    printf("3...Comer y pasar\n");
                     scanf("%d", &opcion);
-                    switch (opcion){
+                    switch (opcion)
+                    {
                     case 1:
                         ClearPlayerTurn();
-                        jugadaInicial(&cola, &pila);
+                        jugadaInicial(&tablero, &cola, &pila);
                         break;
                     case 2:
-                        ordenarMano(cola.frente->mano, cola.frente->numCartas);             
+                        ordenarMano(cola.frente->mano, cola.frente->numCartas);
                         printf("Mano ordenada\n");
                         imprimirManoActual(cola.frente);
                         colorReset();
                         break;
-                    case 3: 
+                    case 3:
                         comer(&cola, &pila);
                         break;
                     default:
@@ -106,9 +122,12 @@ int main() {
                         break;
                     }
                 }
-            }else{
-                //Segunda tirada, todas las funciones desbloqueadas
-                while(opcion != 4){
+            }
+            else
+            {
+                // Segunda tirada, todas las funciones desbloqueadas
+                while (opcion != 4)
+                {
                     printf("1....Iniciar jugada\n");
                     printf("2...Ordenar fichas\n");
                     printf("3...Modificar jugada existente\n");
@@ -119,7 +138,7 @@ int main() {
                     case 1:
                         /* code */
                         break;
-                    case 2: 
+                    case 2:
                         ordenarMano(cola.frente->mano, cola.frente->numCartas);
                         break;
                     case 3:
@@ -127,11 +146,14 @@ int main() {
                         printf("1.....Agregar ficha a jugada existente\n");
                         printf("2.....Robar ficha de jugada existente\n");
                         scanf("%d", &opcion);
-                        if(opcion == 1){
-
-                        }else if(opcion == 2){
-
-                        }else{
+                        if (opcion == 1)
+                        {
+                        }
+                        else if (opcion == 2)
+                        {
+                        }
+                        else
+                        {
                             printf("Opcion invalida, intentalo de nuevo");
                         }
                     default:
@@ -141,20 +163,16 @@ int main() {
                     }
                 }
             }
-        }else{
-            //Logica del bot
+        }
+        else
+        {
+            // Logica del bot
             comer(&cola, &pila);
-            if(cola.frente->jugadorActivo==0){
-                //Primera tirada
-                //jugadaInicial();
-            }else{
-                //Segunda tirada, todas las funciones desbloqueadas
-            }
         }
         revisarSalida(&cola, &colaResultados, &jugadoresActuales);
-        opcion=0;
+        opcion = 0;
     }
     Leaderboard(&colaResultados, totalJugadores);
-    
+
     return 0;
 }
