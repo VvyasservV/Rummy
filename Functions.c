@@ -79,6 +79,13 @@ void inicializarCola(struct ColaJugadores *cola)
     cola->trasero = NULL;
 }
 
+void inicializarColaCartas(struct colaCartas *cola)
+{
+    cola->cabeza = NULL;
+    cola->cola = NULL;
+    cola->tamanio = 0;
+}
+
 void inicializarPila(struct Pila *pila)
 {
     pila->top = 0; // Inicializar el top de la pila en 0
@@ -94,6 +101,7 @@ void inicializarJugada(struct Jugada *jugada)
 {
     jugada->cabeza = NULL;
     jugada->tamanio = 0;
+    jugada->cerrada = false;
 }
 
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot)
@@ -112,6 +120,7 @@ void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot)
     nuevoJugador->siguiente = NULL;
     nuevoJugador->numCartas = 0;
     nuevoJugador->jugadorActivo = false;
+    nuevoJugador->jugadaRealizada = false;
     if (cola->frente == NULL)
     {
         cola->frente = nuevoJugador;
@@ -738,6 +747,7 @@ int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot)
     }
     return 0; // Jugada invalida
 }
+
 
 // Funciones de control de juego
 void finTurno(struct ColaJugadores *cola)

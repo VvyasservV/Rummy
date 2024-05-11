@@ -24,6 +24,7 @@ void inicializarCola(struct ColaJugadores *cola);
 void inicializarPila(struct Pila *pila);
 void inicializarTablero(struct Tablero *tablero);
 void inicializarJugada(struct Jugada *jugada);
+void inicializarColaCartas(struct colaCartas *colaCartas);
 void insertarJugador(struct ColaJugadores *cola, char nombre[], bool esBot);
 void mezclarJugadores(struct ColaJugadores *cola, int totalJugadores);
 void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26],

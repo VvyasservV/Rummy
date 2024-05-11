@@ -5,11 +5,20 @@
 #include <stddef.h>
 
 #define TAM_MAX 106
+#define TAM_PALO_MAX 26
 
 struct Fichas {
     int numero;
     char *color;
     bool asignada;
+};
+
+struct colaCartas{
+    int tamanio;
+    struct Fichas *cabeza;
+    struct Fichas *cola;
+    struct Fichas arreglo[TAM_MAX];
+    int indices[TAM_PALO_MAX];
 };
 
 struct Nodo {
@@ -21,6 +30,7 @@ struct Nodo {
 struct Jugada {
     struct Nodo *cabeza;
     int tamanio;
+    bool cerrada;
 };
 
 struct NodoTablero {
@@ -46,6 +56,7 @@ struct Jugador {
     struct Jugador *siguiente;
     int numCartas;
     bool jugadorActivo;
+    bool jugadaRealizada;
 };
 
 struct ColaJugadores {
