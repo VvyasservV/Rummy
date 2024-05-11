@@ -261,28 +261,29 @@ void imprimirTablero(struct Tablero *tablero)
     struct NodoTablero *jugadaActual = tablero->cabeza;
     int jugadaNumero = 1;
 
-    // Recorre el tablero
-    
     printf("--Jugadas en el tablero--\n");
     do
     {
         printf("Jugada %d:\n", jugadaNumero);
         struct Nodo *fichaActual = jugadaActual->lista->cabeza;
 
-        
-        // Recorre la jugada para imprimir todas las fichas
         do
         {
             printf("%s%d ", fichaActual->ficha.color, fichaActual->ficha.numero);
             fichaActual = fichaActual->siguiente;
 
+            // Impresiones para depurar
+            printf("fichaActual: %p, listaCabeza: %p\n", (void *)fichaActual, (void *)jugadaActual->lista->cabeza);
+
         } while (fichaActual != jugadaActual->lista->cabeza);
 
+        printf("\n");  // Nueva línea para separar las jugadas
         jugadaActual = jugadaActual->siguiente;
         jugadaNumero++;
 
-    } while (jugadaActual != tablero->cabeza); // Mientras no vuelvas al principio del tablero
+    } while (jugadaActual != tablero->cabeza);
 }
+
 
 void imprimirManos(struct ColaJugadores *cola, int totalJugadores)
 {
@@ -525,17 +526,27 @@ bool detectarDuplicados(int indices[MAX_ROWS][MAX_COLS], int totalFilas, int col
         {
             if (indices[j][0] == -1)
             {
-                continue; // Saltar a la siguiente fila si la fila actual comienza con -1
+                continue; // Saltar a la siguiente fila si la fila comparada comienza con -1
             }
+            // Calcular el número de elementos válidos en ambas filas
+            int elementosValidosI = 0, elementosValidosJ = 0;
             for (int k = 0; k < columnas; k++)
             {
-                if (indices[i][k] == -1 || indices[j][k] == -1)
+                if (indices[i][k] != -1)
                 {
-                    continue; // Ignorar elementos invalidos
+                    elementosValidosI++;
                 }
+                if (indices[j][k] != -1)
+                {
+                    elementosValidosJ++;
+                }
+            }
+            // Comparar solo los elementos válidos en ambas filas
+            for (int k = 0; k < elementosValidosI && k < elementosValidosJ; k++)
+            {
                 if (indices[i][k] == indices[j][k])
                 {
-                    return true; // Se encontro un duplicado
+                    return true; // Se encontró un duplicado
                 }
             }
         }
@@ -546,77 +557,78 @@ bool detectarDuplicados(int indices[MAX_ROWS][MAX_COLS], int totalFilas, int col
 // Funcion para detectar duplicados en una fila
 
 // Funcion para resolver duplicados en una fila y decidir si eliminarla
-int resolverDuplicados(int indices[MAX_ROWS][MAX_COLS], int fila, int columnas, struct Fichas *mano)
-{
-    if (detectarDuplicados(indices, fila, columnas))
-    {
-        printf("Se encontraron duplicados en la fila %d.\n", fila);
+int encontrarUltimaFila(int indices[MAX_ROWS][MAX_COLS]) {
+    int ultimaFila = -1;
+    for (int i = 0; i < MAX_ROWS; i++) {
+        if (indices[i][0] != -1) {
+            ultimaFila = i;
+        }
+    }
+    return ultimaFila;
+}
+
+int resolverDuplicados(int indices[MAX_ROWS][MAX_COLS], int fila, int columnas, struct Fichas *mano) {
+    int ultimaFila = encontrarUltimaFila(indices);
+
+    if (ultimaFila == -1) {
+        printf("No hay filas existentes para comparar.\n");
+        return -1; // No hay filas existentes para comparar
+    }
+
+    if (detectarDuplicados(indices, ultimaFila, columnas)) {
+        printf("Se encontraron duplicados en la fila %d con la última fila existente.\n", fila);
         printf("Cartas duplicadas: ");
-        for (int i = 0; i < columnas; i++)
-        {
-            if (indices[fila][i] != -1)
-            {
-                printf("%s%d%s",mano[indices[fila][i]].color, mano[indices[fila][i]].numero, (i < columnas - 1) ? ", " : "\n");
+        for (int i = 0; i < columnas; i++) {
+            if (indices[ultimaFila][i] != -1) {
+                printf("%s%d%s", mano[indices[ultimaFila][i]].color, mano[indices[ultimaFila][i]].numero, (i < columnas - 1) ? ", " : "\n");
             }
         }
+
         printf("Elija la fila a conservar:\n");
-        printf("1... Mantener la fila actual\n");
+        printf("1... Mantener la última fila existente\n");
         printf("2... Eliminar duplicados y conservar fila %d\n", fila);
 
         int eleccion;
         scanf("%d", &eleccion);
 
-        if (eleccion == 1)
-        {
+        if (eleccion == 1) {
             // Eliminar duplicados de la fila seleccionada
-            for (int i = 0; i < columnas; i++)
-            {
-                if (indices[fila][i] == -1)
-                {
-                    continue; // Ignorar elementos invalidos
+            for (int i = 0; i < columnas; i++) {
+                if (indices[fila][i] == -1) {
+                    continue; // Ignorar elementos inválidos
                 }
-                for (int j = i + 1; j < columnas; j++)
-                {
-                    if (indices[fila][j] == indices[fila][i])
-                    {
+                for (int j = i + 1; j < columnas; j++) {
+                    if (indices[fila][j] == indices[fila][i]) {
                         indices[fila][j] = -1; // Eliminar duplicados
                     }
                 }
             }
             return -2; // Retorna -2 para indicar que se mantuvo la fila actual
-        }
-        else if (eleccion == 2)
-        {
+        } else if (eleccion == 2) {
             // Sumar las cartas de la fila que se va a eliminar
             int sumaCartas = 0;
-            for (int i = 0; i < columnas; i++)
-            {
-                if (indices[fila][i] != -1)
-                {
+            for (int i = 0; i < columnas; i++) {
+                if (indices[fila][i] != -1) {
                     sumaCartas += mano[indices[fila][i]].numero;
                 }
             }
             // Marcar la fila para eliminarla
-            for (int i = 0; i < MAX_ROWS; i++)
-            {
-                if (indices[i][0] == fila)
-                {
-                    for (int j = 0; j < MAX_COLS; j++)
-                    {
-                        indices[i][j] = -1; // Rellenar la fila con -1 para indicar que esta eliminada
+            for (int i = 0; i < MAX_ROWS; i++) {
+                if (indices[i][0] == fila) {
+                    for (int j = 0; j < MAX_COLS; j++) {
+                        indices[i][j] = -1; // Rellenar la fila con -1 para indicar que está eliminada
                     }
                     return sumaCartas; // Retorna la suma de las cartas de la fila eliminada
                 }
             }
-        }
-        else
-        {
-            printf("Opcion no valida. No se realizo ninguna accion.\n");
-            return -1; // Retorna -1 si no se realizo ninguna accion valida
+        } else {
+            printf("Opción no válida. No se realizó ninguna acción.\n");
+            return -1; // Retorna -1 si no se realizó ninguna acción válida
         }
     }
     return -1; // Retorna -1 si no se encontraron duplicados
 }
+
 
 void ajustar_indices(int matriz[MAX_ROWS][MAX_COLS], int fila_eliminada[], int fila_size, int total_rows)
 {
