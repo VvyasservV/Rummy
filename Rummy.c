@@ -42,7 +42,6 @@ int main()
     inicializarCola(&colaResultados);
     inicializarPila(&pila);
     inicializarTablero(&tablero);
-
     // Insertar jugadores en la cola
     for (int i = 0; i < jugadoresConsola; i++)
     {

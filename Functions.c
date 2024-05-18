@@ -12,7 +12,7 @@
 int randomNumber()
 {
     srand(time(NULL));
-    int random = rand() % 5;
+    int random = rand();
     return random;
 }
 
@@ -196,7 +196,7 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     tempBaraja[idx++] = comodin[0];
     tempBaraja[idx++] = comodin[1];
     // Barajar el arreglo de cartas
-    revolver(tempBaraja, totalCartas);
+    revolver(tempBaraja, totalCartas); //comentar para depurar
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++)
     {
@@ -1386,3 +1386,18 @@ void Leaderboard(struct ColaJugadores *colaResultados, int totalJugadores)
         posicion++;                 // Aumenta la posicion
     } while (actual != NULL && posicion <= totalJugadores);
 }
+
+/*Falta arreglar modificar jugadas y el bot
+(Jaline)
+jugadaBot
+(Arias)
+agregarFichaAJug...
+robarFichaAJug...
+*/
+//Romario
+//Falta agregarPorIndice y robarPorIndice
+
+//Falta hacer romper jugadas
+/*Hacer toda la logica*/
+//Jaline, Jose, Luna, Yasser
+//Crea tablero temporal y dice en cuantas jugadas se va a romper
