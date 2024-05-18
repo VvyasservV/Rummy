@@ -4,7 +4,7 @@ Juego de mesa Rummy en lenguaje C
 ##	Requisitos de instalación 📋
 * Visual Studio 2015 o superior.
 	*	Componente de C++.
-* GCC v10.1 o superiores.
+* GCC v13.2 o superiores.
 ###	Si utilizas `gcc`
  	gcc rummy.c functions.c -o rummy
 	./rummy
