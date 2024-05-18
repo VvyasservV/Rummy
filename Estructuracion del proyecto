@@ -1,0 +1,7 @@
+Functions.h contiene el prototipo de todas las funciones de Functions.c, si no se encuentran, no podrán ser llamadas desde Rummy.c
+Structs.h contienen todas las estructuras utilizadas en el proyecto, se pueden modificar dependiendo de las necesidades que tengan
+Functions.c contiene toda la logica de los modulos necesarios para el uso del proyecto
+Rummy.c contiene la logica general del proceso del juego, en general solo contiene menus y la invocacion de las funciones de 
+Functions.c
+
+Si tienen alguna duda o problema, por favor manden mensaje por el grupo

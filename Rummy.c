@@ -10,21 +10,21 @@ int main()
     colorReset();
     int jugadoresActuales, totalJugadores = 0, jugadoresConsola = -1, bots = 0, opcion = 0;
 
-    // Pedir al usuario el número total de jugadores
+    // Pedir al usuario el numero total de jugadores
     while (totalJugadores < 2 || totalJugadores > 4)
     {
         printf("Ingrese el numero total de jugadores (entre 2 y 4): ");
         scanf("%d", &totalJugadores);
     }
     jugadoresActuales = totalJugadores;
-    // Pedir al usuario el número de jugadores en consola
+    // Pedir al usuario el numero de jugadores en consola
     while (jugadoresConsola < 0 || jugadoresConsola > totalJugadores)
     {
         printf("Ingrese el numero de jugadores en consola (entre 0 y %d): ", totalJugadores);
         scanf("%d", &jugadoresConsola);
     }
 
-    // Calcular el número de bots
+    // Calcular el numero de bots
     bots = totalJugadores - jugadoresConsola;
 
     // Crear las estructuras del juego
@@ -42,7 +42,6 @@ int main()
     inicializarCola(&colaResultados);
     inicializarPila(&pila);
     inicializarTablero(&tablero);
-
     // Insertar jugadores en la cola
     for (int i = 0; i < jugadoresConsola; i++)
     {
