@@ -250,7 +250,7 @@ void imprimirTablero(struct Tablero *tablero)
 {
     if (tablero->cabeza == NULL)
     {
-        printf("El tablero está vacío.\n");
+        printf("El tablero esta vacio.\n");
         return;
     }
 
@@ -272,7 +272,7 @@ void imprimirModificarTablero(struct Tablero *tablero)
 {
     if (tablero->cabeza == NULL)
     {
-        printf("El tablero está vacío.\n");
+        printf("El tablero esta vacio.\n");
         return;
     }
 
@@ -950,7 +950,7 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
     imprimirModificarTablero(tablero);
     struct NodoTablero *jugadaActual = tablero->cabeza;
 
-    printf("Ingrese el índice de la jugada a modificar: ");
+    printf("Ingrese el indice de la jugada a modificar: ");
     scanf("%d", &indiceJugada);
 
     // Buscar la jugada correspondiente
@@ -959,10 +959,10 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
         jugadaActual = jugadaActual->siguiente;
     }
 
-    // Verificar si la jugada está completa
+    // Verificar si la jugada esta completa
     if (jugadaActual->jugada->cerrada)
     {
-        printf("La jugada ya está completa.\n");
+        printf("La jugada ya esta completa.\n");
         return;
     }
 
@@ -972,7 +972,7 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
     colorReset();
     imprimirIndicesJugadas(jugadaActual->jugada->tamanio);
 
-    // Seleccionar la opción de agregar ficha por izquierda o derecha
+    // Seleccionar la opcion de agregar ficha por izquierda o derecha
     printf("0...Agregar ficha por izquierda\n");
     printf("1...Agregar ficha por derecha\n");
     scanf("%d", &opcion);
@@ -998,7 +998,7 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
         struct Fichas fichaAgregada = actual->mano[indiceCarta];
         jugada[j] = fichaAgregada;
 
-        // Verificar si la jugada es válida y agregar la ficha por izquierda
+        // Verificar si la jugada es valida y agregar la ficha por izquierda
         jugadaValida = revisarJugada(jugada, j, actual->esBot);
         if (jugadaValida != 0 && ((jugada[0].numero == fichaAgregada.numero && jugadaValida == 1) || jugadaValida == 2))
         {
@@ -1007,7 +1007,7 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
         }
         else
         {
-            printf("Esta jugada no es válida.\n");
+            printf("Esta jugada no es valida.\n");
             return;
         }
     }
@@ -1021,7 +1021,7 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
         struct Fichas fichaAgregada = actual->mano[indiceCarta];
         jugada[j] = fichaAgregada;
 
-        // Verificar si la jugada es válida y agregar la ficha por derecha
+        // Verificar si la jugada es valida y agregar la ficha por derecha
         jugadaValida = revisarJugada(jugada, j, actual->esBot);
         if (jugadaValida != 0 && ((jugada[j - 1].numero == fichaAgregada.numero && jugadaValida == 1) || jugadaValida == 2))
         {
@@ -1030,13 +1030,13 @@ void agregarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores 
         }
         else
         {
-            printf("Esta jugada no es válida.\n");
+            printf("Esta jugada no es valida.\n");
             return;
         }
     }
     else
     {
-        printf("Opción inválida.\n");
+        printf("Opcion invalida.\n");
         return;
     }
 
@@ -1063,7 +1063,7 @@ void robarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *c
     imprimirModificarTablero(tablero);
     struct NodoTablero *jugadaActual = tablero->cabeza;
     struct Jugador *actual = cola->frente;
-    printf("Ingrese el índice de la jugada a modificar: ");
+    printf("Ingrese el indice de la jugada a modificar: ");
     scanf("%d", &indiceJugada);
 
     // Buscar la jugada correspondiente
@@ -1078,7 +1078,7 @@ void robarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *c
     colorReset();
     imprimirIndicesJugadas(jugadaActual->jugada->tamanio);
 
-    // Seleccionar la opción de robar ficha por izquierda o derecha
+    // Seleccionar la opcion de robar ficha por izquierda o derecha
     printf("0...Robar ficha por izquierda\n");
     printf("1...Robar ficha por derecha\n");
     scanf("%d", &opcion);
@@ -1113,7 +1113,7 @@ void robarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *c
     }
     else
     {
-        printf("Opción inválida.\n");
+        printf("Opcion invalida.\n");
         return;
     }
 }
@@ -1138,7 +1138,7 @@ void jugadaBot(struct Tablero *tablero, struct ColaJugadores *cola, struct Pila 
 
     ordenarMano(actual->mano, actual->numCartas);
 
-    // Llenar las colas y arreglos de índices
+    // Llenar las colas y arreglos de indices
     for (int j = 0; j < actual->numCartas; j++)
     {
         if (strcmp(actual->mano[j].color, VERDE) == 0)
@@ -1386,18 +1386,3 @@ void Leaderboard(struct ColaJugadores *colaResultados, int totalJugadores)
         posicion++;                 // Aumenta la posicion
     } while (actual != NULL && posicion <= totalJugadores);
 }
-
-/*Falta arreglar modificar jugadas y el bot
-(Jaline)
-jugadaBot
-(Arias)
-agregarFichaAJug...
-robarFichaAJug...
-*/
-//Romario
-//Falta agregarPorIndice y robarPorIndice
-
-//Falta hacer romper jugadas
-/*Hacer toda la logica*/
-//Jaline, Jose, Luna, Yasser
-//Crea tablero temporal y dice en cuantas jugadas se va a romper

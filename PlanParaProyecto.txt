@@ -1,0 +1,25 @@
+Modulos que necesitan revision
+Modulos referentes a modificar jugadas y todo lo referente al bot:
+(Jaline)
+jugadaBot
+
+(Arias)
+agregarFichaAJug...
+robarFichaAJug...
+
+Modulos faltantes 
+
+Romario
+-agregarPorIndice 
+-robarPorIndice
+
+Funcionalidades faltantes:
+Romper jugadas
+Jaline, Jose, Luna, Yasser
+-Crea tablero temporal
+-Pide en cuantas jugadas se va a romper y su(s) respectivo(s) indice(s)
+-Partir la jugada seleccionada y agregarla al tablero temporal
+-Validar todas las jugadas antes de agregarlas al tablero original
+
+Si es posible, revisar primerJugada para ver si es posible generar mas jugadas en un mismo turno cuando el jugador aun no suma
+25 puntos
