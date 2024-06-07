@@ -459,13 +459,9 @@ void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor)
     jugada->tamanio++;
 }
 // Función para agregar ficha en un indice
-void agregarFicha(struct Jugada *jugada, struct Fichas valor) {
+void agregarFicha(struct Jugada *jugada, struct Fichas valor, int indice) {
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuevo_nodo->ficha = valor;
-
-    int indice;
-    printf("Ingrese el indice donde desea agregar la ficha (0 para el inicio): ");
-    scanf("%d", &indice);
 
     printf("%s%d %s agregada en el índice %d\n", nuevo_nodo->ficha.color, nuevo_nodo->ficha.numero, BLANCO, indice);
 
@@ -549,17 +545,18 @@ struct Fichas robarPorDerecha(struct Jugada *jugada)
     return resultado;
 }
 // Función para robar ficha en un índice 
-struct Fichas robarFicha(struct Jugada *jugada) {
+struct Fichas robarFicha(struct Jugada *jugada, int indice) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar ninguna ficha.\n");
         return (struct Fichas){"N/A", -1}; // Indicador de error
     }
 
-    int indice;
-    printf("Ingrese el indice de la ficha que desea robar (0 para la primera ficha): ");
-    scanf("%d", &indice);
-
     struct Nodo *actual = jugada->cabeza;
+    if(indice == 0)
+        robarPorIzquierda(jugada);
+    else if(indice == jugada->tamanio)
+        robarPorDerecha(jugada);
+
     for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++) {
         actual = actual->siguiente;
     }
