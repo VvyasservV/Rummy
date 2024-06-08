@@ -235,6 +235,7 @@ void revolver(struct Fichas *array, int n)
         array[i] = temp;
     }
 }
+
 void imprimirJugada(struct Jugada *jugadaActual)
 {
     struct Nodo *fichaActual = jugadaActual->cabeza;
@@ -458,6 +459,36 @@ void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor)
     }
     jugada->tamanio++;
 }
+// Función para agregar ficha en un indice
+void agregarFicha(struct Jugada *jugada, struct Fichas valor, int indice) {
+    struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
+    nuevo_nodo->ficha = valor;
+
+    printf("%s%d %s agregada en el índice %d\n", nuevo_nodo->ficha.color, nuevo_nodo->ficha.numero, BLANCO, indice);
+
+    if (jugada->cabeza == NULL) {
+        jugada->cabeza = nuevo_nodo;
+        jugada->cabeza->siguiente = nuevo_nodo;
+        jugada->cabeza->anterior = nuevo_nodo;
+    } else {
+        struct Nodo *actual = jugada->cabeza;
+        for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++) {
+            actual = actual->siguiente;
+        }
+        struct Nodo *anterior = actual->anterior;
+
+        nuevo_nodo->siguiente = actual;
+        nuevo_nodo->anterior = anterior;
+        anterior->siguiente = nuevo_nodo;
+        actual->anterior = nuevo_nodo;
+
+        if (indice == 0) {
+            jugada->cabeza = nuevo_nodo;
+        }
+    }
+
+    jugada->tamanio++;
+}
 
 // Robar fichas a juego existente
 struct Fichas robarPorIzquierda(struct Jugada *jugada)
@@ -510,6 +541,39 @@ struct Fichas robarPorDerecha(struct Jugada *jugada)
     }
 
     free(ultimo);
+    jugada->tamanio--;
+
+    return resultado;
+}
+// Función para robar ficha en un índice 
+struct Fichas robarFicha(struct Jugada *jugada, int indice) {
+    if (jugada->cabeza == NULL) {
+        printf("Lista vacía, no se puede robar ninguna ficha.\n");
+        return (struct Fichas){-1, "N / A", -1}; // Indicador de error
+    }
+
+    struct Nodo *actual = jugada->cabeza;
+    if(indice == 0)
+        robarPorIzquierda(jugada);
+    else if(indice == jugada->tamanio)
+        robarPorDerecha(jugada);
+
+    for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++) {
+        actual = actual->siguiente;
+    }
+    struct Fichas resultado = actual->ficha;
+
+    if (jugada->tamanio == 1) {
+        jugada->cabeza = NULL;
+    } else {
+        actual->anterior->siguiente = actual->siguiente;
+        actual->siguiente->anterior = actual->anterior;
+        if (actual == jugada->cabeza) {
+            jugada->cabeza = actual->siguiente;
+        }
+    }
+
+    free(actual);
     jugada->tamanio--;
 
     return resultado;
