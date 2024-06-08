@@ -235,6 +235,7 @@ void revolver(struct Fichas *array, int n)
         array[i] = temp;
     }
 }
+
 void imprimirJugada(struct Jugada *jugadaActual)
 {
     struct Nodo *fichaActual = jugadaActual->cabeza;
@@ -548,7 +549,7 @@ struct Fichas robarPorDerecha(struct Jugada *jugada)
 struct Fichas robarFicha(struct Jugada *jugada, int indice) {
     if (jugada->cabeza == NULL) {
         printf("Lista vacía, no se puede robar ninguna ficha.\n");
-        return (struct Fichas){"N/A", -1}; // Indicador de error
+        return (struct Fichas){-1, "N / A", -1}; // Indicador de error
     }
 
     struct Nodo *actual = jugada->cabeza;
