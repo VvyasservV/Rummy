@@ -185,6 +185,10 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
     // Crear un arreglo temporal para barajar las cartas
     struct Fichas tempBaraja[4 * 26 + 2];
     int idx = 0, k = 0;
+
+    tempBaraja[idx++] = comodin[0];
+    tempBaraja[idx++] = comodin[1];
+
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 26; j++)
@@ -193,10 +197,8 @@ void repartirCartasYPila(struct ColaJugadores *cola, struct Fichas baraja[4][26]
         }
     }
     // Agregar los comodines al arreglo temporal
-    tempBaraja[idx++] = comodin[0];
-    tempBaraja[idx++] = comodin[1];
     // Barajar el arreglo de cartas
-    revolver(tempBaraja, totalCartas); //comentar para depurar
+    // revolver(tempBaraja, totalCartas); //comentar para depurar
     // Repartir las cartas aleatorias a cada jugador
     for (int i = 0; i < totalManos; i++)
     {
@@ -242,7 +244,10 @@ void imprimirJugada(struct Jugada *jugadaActual)
     // Recorre la jugada para imprimir todas las fichas
     do
     {
-        printf("%s%d ", fichaActual->ficha.color, fichaActual->ficha.numero);
+        if (!isJoker(fichaActual->ficha.numero))
+            printf("%s%d ", fichaActual->ficha.color, fichaActual->ficha.numero);
+        else
+            printf("%sJ ", fichaActual->ficha.color, fichaActual->ficha.numero);
         fichaActual = fichaActual->siguiente;
     } while (fichaActual != jugadaActual->cabeza);
     printf("%s\n", BLANCO);
@@ -407,7 +412,10 @@ void agregarJugada(struct Tablero *tablero, struct Jugada *nuevaJugada)
     struct Nodo *actual = nuevo_nodo->jugada->cabeza;
     do
     {
-        printf("%s%d ", actual->ficha.color, actual->ficha.numero);
+        if(!isJoker(actual->ficha.numero))
+            printf("%s%d ", actual->ficha.color, actual->ficha.numero);
+        else
+            printf("%sJ ", actual->ficha.color);
         actual = actual->siguiente;
     } while (actual != nuevaJugada->cabeza);
     printf("%s\n", BLANCO); // Imprimir el color de la ficha de la jugada
@@ -418,7 +426,6 @@ void agregarFichaPorDerecha(struct Jugada *jugada, struct Fichas valor)
 {
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuevo_nodo->ficha = valor;
-    printf("%s%d %s agregada\n", nuevo_nodo->ficha.color, nuevo_nodo->ficha.numero, BLANCO);
     if (jugada->cabeza == NULL)
     {
         jugada->cabeza = nuevo_nodo;
@@ -460,19 +467,23 @@ void agregarFichaPorIzquierda(struct Jugada *jugada, struct Fichas valor)
     jugada->tamanio++;
 }
 // Función para agregar ficha en un indice
-void agregarFicha(struct Jugada *jugada, struct Fichas valor, int indice) {
+void agregarFicha(struct Jugada *jugada, struct Fichas valor, int indice)
+{
     struct Nodo *nuevo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuevo_nodo->ficha = valor;
 
-    printf("%s%d %s agregada en el índice %d\n", nuevo_nodo->ficha.color, nuevo_nodo->ficha.numero, BLANCO, indice);
 
-    if (jugada->cabeza == NULL) {
+    if (jugada->cabeza == NULL)
+    {
         jugada->cabeza = nuevo_nodo;
         jugada->cabeza->siguiente = nuevo_nodo;
         jugada->cabeza->anterior = nuevo_nodo;
-    } else {
+    }
+    else
+    {
         struct Nodo *actual = jugada->cabeza;
-        for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++) {
+        for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++)
+        {
             actual = actual->siguiente;
         }
         struct Nodo *anterior = actual->anterior;
@@ -482,7 +493,8 @@ void agregarFicha(struct Jugada *jugada, struct Fichas valor, int indice) {
         anterior->siguiente = nuevo_nodo;
         actual->anterior = nuevo_nodo;
 
-        if (indice == 0) {
+        if (indice == 0)
+        {
             jugada->cabeza = nuevo_nodo;
         }
     }
@@ -545,30 +557,37 @@ struct Fichas robarPorDerecha(struct Jugada *jugada)
 
     return resultado;
 }
-// Función para robar ficha en un índice 
-struct Fichas robarFicha(struct Jugada *jugada, int indice) {
-    if (jugada->cabeza == NULL) {
+// Función para robar ficha en un índice
+struct Fichas robarFicha(struct Jugada *jugada, int indice)
+{
+    if (jugada->cabeza == NULL)
+    {
         printf("Lista vacía, no se puede robar ninguna ficha.\n");
         return (struct Fichas){-1, "N / A", -1}; // Indicador de error
     }
 
     struct Nodo *actual = jugada->cabeza;
-    if(indice == 0)
+    if (indice == 0)
         robarPorIzquierda(jugada);
-    else if(indice == jugada->tamanio)
+    else if (indice == jugada->tamanio)
         robarPorDerecha(jugada);
 
-    for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++) {
+    for (int i = 0; i < indice && actual->siguiente != jugada->cabeza; i++)
+    {
         actual = actual->siguiente;
     }
     struct Fichas resultado = actual->ficha;
 
-    if (jugada->tamanio == 1) {
+    if (jugada->tamanio == 1)
+    {
         jugada->cabeza = NULL;
-    } else {
+    }
+    else
+    {
         actual->anterior->siguiente = actual->siguiente;
         actual->siguiente->anterior = actual->anterior;
-        if (actual == jugada->cabeza) {
+        if (actual == jugada->cabeza)
+        {
             jugada->cabeza = actual->siguiente;
         }
     }
@@ -631,7 +650,6 @@ int jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct Pi
         agregarFichaPorDerecha(nuevaJugada, actual->mano[indices[j]]);
         k++;
     }
-    printf("Jugada correctamente agregada\n");
     // Eliminar las fichas utilizadas
 
     if (k == 4 && sumaCartas % 4)
@@ -647,13 +665,34 @@ int jugadaInicial(struct Tablero *tablero, struct ColaJugadores *cola, struct Pi
         }
         actual->numCartas--;
     }
-    imprimirManoActual(actual);
+    PCTurn(2);
     agregarJugada(tablero, nuevaJugada);
-    imprimirJugada(nuevaJugada);
+    printf("Mano de %s actualizada:\n",actual->nombre);
+    imprimirManoActual(actual);
     PCTurn(2);
     actual->jugadorActivo = 1; // El jugador ya hizo su jugada inicial
     finTurno(cola);
     return 1;
+}
+
+bool detectarRepetidos(int indices[], int arrSize) {
+    // Creamos un arreglo de booleanos para marcar qué números hemos visto
+    bool vistos[100] = {false}; // Suponiendo que los números están en el rango de 0 a 99
+
+    // Iteramos sobre el arreglo
+    for (int i = 0; i < arrSize; i++) {
+        // Verificamos si el número actual ya ha sido visto
+        if (vistos[indices[i]]) {
+            // Si ya lo hemos visto, hay un número repetido
+            return true;
+        } else {
+            // Si no lo hemos visto, lo marcamos como visto
+            vistos[indices[i]] = true;
+        }
+    }
+
+    // Si llegamos hasta aquí, no hay números repetidos
+    return false;
 }
 
 int iniciarJugada(struct Jugador *actual, int *arrIndices)
@@ -679,7 +718,7 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
                     ;
                 continue;
             }
-            if (indiceSeleccionado < 1 || indiceSeleccionado > actual->numCartas)
+            if (indiceSeleccionado < 1 || indiceSeleccionado > actual->numCartas )
             {
                 printf("Dato invalido, ingresa otro indice entre 1 y %d\n", actual->numCartas);
             }
@@ -687,7 +726,10 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
 
         arrIndices[arrSize] = indiceSeleccionado - 1;
         arrSize++;
-
+        if(detectarRepetidos(arrIndices, arrSize)){
+            printf("Indice repetido\n");
+            arrSize--;
+        }
         do
         {
             printf("Deseas agregar otro indice?\n");
@@ -717,6 +759,8 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
                     ;
                 finJugada = 0; // Para reiniciar el bucle
             }
+            arrSize = 0;
+            PCTurn(1);
         }
 
         if (finJugada == 2 && arrIndices[0] == -1)
@@ -727,42 +771,68 @@ int iniciarJugada(struct Jugador *actual, int *arrIndices)
     for (int k = 0; k < arrSize; k++)
     {
         posibleJugada[k] = actual->mano[arrIndices[k]];
-        printf("%s%d \t", posibleJugada[k].color, posibleJugada[k].numero);
+        if(!isJoker(posibleJugada[k].numero))
+            printf("%s%d \t", posibleJugada[k].color, posibleJugada[k].numero);
+        else
+            printf("%sJ \t", posibleJugada[k].color);
     }
     printf(BLANCO "\n");
     int tipoJugada = revisarJugada(posibleJugada, arrSize, actual->esBot);
-
+    int joker = -1, indiceTemporal = -1, valorComodin;
     if (tipoJugada == 0)
     {
         return 0; // Jugada invalida
     }
     for (int k = 0; k < arrSize; k++)
     {
-        if (!isJoker(actual->mano[arrIndices[k]].numero))
+        if (!isJoker(actual->mano[arrIndices[k]].numero)){
             sumaCartas += actual->mano[arrIndices[k]].numero;
-
+            indiceTemporal=arrIndices[k];
+        }
         else
         {
+            printf("tipoJugada %d\n", tipoJugada);
             if (tipoJugada == 1)
             { // corrida
-                int valorComodin = obtenerValorComodin(actual->mano, arrIndices, arrSize);
-                sumaCartas += valorComodin;
+                if(++joker==0){
+                    valorComodin = obtenerValorComodin(actual->mano, arrIndices, arrSize, joker, indiceTemporal);
+                    sumaCartas += valorComodin;
+                }else
+                    sumaCartas+=(valorComodin+1);
             }
             else if (tipoJugada == 2)
             {
-                if (k == 0)
+                if (indiceTemporal != -1)
+                    sumaCartas += actual->mano[indiceTemporal].numero;
+                else if (!isJoker(actual->mano[arrIndices[k + 1]].numero))
+                {
                     sumaCartas += actual->mano[arrIndices[k + 1]].numero;
-                else
-                    sumaCartas += actual->mano[arrIndices[k - 1]].numero;
+                    indiceTemporal = arrIndices[k + 1];
+                }else{
+                    sumaCartas += actual->mano[arrIndices[k + 2]].numero;
+                    indiceTemporal = arrIndices[k + 2];
+                }
             }
         }
     }
     return sumaCartas;
 }
 
-int obtenerValorComodin(struct Fichas *mano, int *arrIndices, int arrSize)
+int obtenerValorComodin(struct Fichas *mano, int *arrIndices, int arrSize, int k, int tempIndex)
 {
     // Buscar el valor mas alto y mas bajo de las cartas seleccionadas
+    int CorridaCompleta = 0, j = 0;
+    int dobleComodin = CorridaCompleta, valorMedio;
+    for(int i = 0; i < arrSize; i++){
+        if(mano[arrIndices[i]].numero != mano[arrIndices[i + 1]].numero - 1){
+            j = i;
+            break;
+        }
+    }
+    if((isJoker(mano[j + 2].numero)) && k == 0)
+        return (mano[arrIndices[j]].numero + 2);
+    else if(isJoker(mano[j + 1].numero))
+        return (mano[arrIndices[j]].numero + 1);
     int valorMasAlto = 0;
     int valorMasBajo = 99; // Valor alto inicial para garantizar que se actualice en la busqueda
 
@@ -780,7 +850,7 @@ int obtenerValorComodin(struct Fichas *mano, int *arrIndices, int arrSize)
     }
 
     // Si el comodin esta en una corrida, su valor es la carta mas alta + 1 si no excede el limite, de lo contrario, es la carta mas baja - 1
-    if (valorMasAlto < 12)
+    if (valorMasAlto <= 12)
     {
         return valorMasAlto + 1;
     }
@@ -789,36 +859,23 @@ int obtenerValorComodin(struct Fichas *mano, int *arrIndices, int arrSize)
         return valorMasBajo - 1;
     }
 }
+
 int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot)
 {
-    // Ordena el arreglo para verificar las corridas
-    ordenarMano(fichas, arrSize);
-
-    // Verifica corridas
-    int corrida = 0;
-    for (int i = 0; i < arrSize - 1; i++)
-    {
-        if ((fichas[i + 1].numero == (fichas[i].numero + 1) &&
-             strcmp(fichas[i + 1].color, fichas[i].color) == 0) ||
-            (fichas[i + 1].numero == 99 && i == arrSize - 1))
-        {              // Corrida no encontrada
-            corrida++; // Corrida
-        }
-    }
-    if (corrida == arrSize - 1)
-    {
-        return 1; // Corrida
-    }
-
+    struct Fichas manoTemporal[MAX_COLS];
+    for(int i = 0; i < arrSize - 1; i++)
+        manoTemporal[i] = fichas[i];
+    ordenarMano(manoTemporal, arrSize);
     // Verifica "OAK" (Tres iguales)
     int OAK = 0; // Contador de cartas OAK
     if (arrSize >= 3 && arrSize <= 4)
     {
         for (int i = 0; i < arrSize - 1; i++)
         {
-            if ((fichas[i + 1].numero == fichas[i].numero &&
+            
+            if ((manoTemporal[i + 1].numero == manoTemporal[i].numero &&
                  strcmp(fichas[i + 1].color, fichas[i].color) != 0) ||
-                (fichas[i + 1].numero == 99 && i == arrSize - 2))
+                (fichas[i + 1].numero == 99))
             {
                 OAK++;
             }
@@ -828,16 +885,51 @@ int revisarJugada(struct Fichas fichas[MAX_COLS], int arrSize, bool esBot)
             }
         }
     }
+
+    // Verifica corridas
+    int corrida = 0;
+    int comodines = 0;
+    for (int i = 0; i < arrSize - 1; i++)
+    {
+        if (fichas[i].numero == 99)
+        {
+            comodines++;
+            corrida++;
+        }
+        else if (fichas[i + 1].numero == 99)
+        {
+            comodines++;
+            corrida++;
+        }
+        else if (fichas[i + 1].numero == (fichas[i].numero + 1) && strcmp(fichas[i + 1].color, fichas[i].color) == 0)
+        {
+            corrida++;
+        }
+        else if (comodines > 0 && fichas[i + 1].numero == (fichas[i].numero + 1 + comodines) && strcmp(fichas[i + 1].color, fichas[i].color) == 0)
+        {
+            corrida++;
+            comodines = 0; // Reset comodines después de usar
+        }
+        else
+        {
+            corrida = 0; // Reset si la secuencia se rompe
+            comodines = 0;
+        }
+    }
+
+    
     if (OAK == arrSize - 1)
     {
         return 2; // OAK
     }
 
-    // Si no se encontraron corridas ni OAK, la jugada es invalida
-    if (!esBot)
+    if (corrida == arrSize - 1)
     {
-        printf("La jugada que ingresaste no es valida\n");
+        return 1; // Corrida
     }
+    
+    // Si no se encontraron corridas ni OAK, la jugada es invalida
+    printf("La jugada que ingresaste no es valida\n");
     return 0; // Jugada invalida
 }
 
@@ -879,7 +971,6 @@ void jugadaNormal(struct Tablero *tablero, struct ColaJugadores *cola)
         agregarFichaPorDerecha(nuevaJugada, actual->mano[indices[j]]);
         k++;
     }
-    printf("Jugada correctamente agregada\n");
     if (k == 4 && sumaCartas % 4)
         nuevaJugada->cerrada = true;
     if (k == 13)
@@ -895,12 +986,14 @@ void jugadaNormal(struct Tablero *tablero, struct ColaJugadores *cola)
         }
         actual->numCartas--;
     }
-    imprimirManoActual(actual);
+    
+    PCTurn(2);
+    printf("Jugada agregada\n");
     agregarJugada(tablero, nuevaJugada);
-    imprimirJugada(nuevaJugada);
+    printf("Mano de %s actualizada:\n",actual->nombre);
+    imprimirManoActual(actual);
     PCTurn(2);
     actual->jugadaRealizada = 1;
-    finTurno(cola);
     return;
 }
 
@@ -935,7 +1028,10 @@ int iniciarJugadaNormal(struct Jugador *actual, int *arrIndices)
 
         arrIndices[arrSize] = indiceSeleccionado - 1;
         arrSize++;
-
+        if(detectarRepetidos(arrIndices, arrSize)){
+            printf("Indice repetido\n");
+            arrSize--;
+        }
         do
         {
             printf("Deseas agregar otro indice?\n");
@@ -975,7 +1071,10 @@ int iniciarJugadaNormal(struct Jugador *actual, int *arrIndices)
     for (int k = 0; k < arrSize; k++)
     {
         posibleJugada[k] = actual->mano[arrIndices[k]];
-        printf("%s%d \t", posibleJugada[k].color, posibleJugada[k].numero);
+        if(!isJoker(posibleJugada[k].numero))
+            printf("%s%d \t", posibleJugada[k].color, posibleJugada[k].numero);
+        else
+            printf("%sJ \t", posibleJugada[k].color);
     }
     printf(BLANCO "\n");
     int tipoJugada = revisarJugada(posibleJugada, arrSize, actual->esBot);
@@ -984,24 +1083,35 @@ int iniciarJugadaNormal(struct Jugador *actual, int *arrIndices)
     {
         return 0; // Jugada invalida
     }
+    int joker = -1, indiceTemporal = -1, valorComodin = -1;
     for (int k = 0; k < arrSize; k++)
     {
-        if (!isJoker(actual->mano[arrIndices[k]].numero))
+        if (!isJoker(actual->mano[arrIndices[k]].numero)){
             sumaCartas += actual->mano[arrIndices[k]].numero;
-
+            indiceTemporal=arrIndices[k];
+        }
         else
         {
             if (tipoJugada == 1)
             { // corrida
-                int valorComodin = obtenerValorComodin(actual->mano, arrIndices, arrSize);
-                sumaCartas += valorComodin;
+                if(++joker==0){
+                    valorComodin = obtenerValorComodin(actual->mano, arrIndices, arrSize, joker, indiceTemporal);
+                    sumaCartas += valorComodin;
+                }else
+                    sumaCartas+=(valorComodin+1);
             }
             else if (tipoJugada == 2)
             {
-                if (k == 0)
+                if (indiceTemporal != -1)
+                    sumaCartas += actual->mano[indiceTemporal].numero;
+                else if (!isJoker(actual->mano[arrIndices[k + 1]].numero))
+                {
                     sumaCartas += actual->mano[arrIndices[k + 1]].numero;
-                else
-                    sumaCartas += actual->mano[arrIndices[k - 1]].numero;
+                    indiceTemporal = arrIndices[k + 1];
+                }else{
+                    sumaCartas += actual->mano[arrIndices[k + 2]].numero;
+                    indiceTemporal = arrIndices[k + 2];
+                }
             }
         }
     }
@@ -1129,7 +1239,7 @@ void robarFichaAJugadaExistente(struct Tablero *tablero, struct ColaJugadores *c
     struct Jugador *actual = cola->frente;
     printf("Ingrese el indice de la jugada a modificar: ");
     scanf("%d", &indiceJugada);
-
+    
     // Buscar la jugada correspondiente
     for (int i = 0; i < indiceJugada - 1; i++)
     {

@@ -1,19 +1,19 @@
-Modulos que necesitan revision
 Modulos referentes a modificar jugadas y todo lo referente al bot:
-(Jaline)
-jugadaBot
 
-(Arias)
+Arias
 agregarFichaAJug...
 robarFichaAJug...
 
 Funcionalidades faltantes:
+
 Romper jugadas
-Jaline, Jose, Luna, Yasser
--Crea tablero temporal
+Jose, Romario, Yasser 
+-Crea tablero temporal  
 -Pide en cuantas jugadas se va a romper y su(s) respectivo(s) indice(s)
 -Partir la jugada seleccionada y agregarla al tablero temporal
+-Agregar y robar todas las fichas que el jugador quiera
 -Validar todas las jugadas antes de agregarlas al tablero original
 
-Si es posible, revisar primerJugada para ver si es posible generar mas jugadas en un mismo turno cuando el jugador aun no suma
-25 puntos
+Bot
+Jaline, Luna, Bryan
+

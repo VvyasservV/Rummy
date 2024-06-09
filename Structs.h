@@ -29,8 +29,8 @@ struct Nodo {
 
 struct Jugada {
     struct Nodo *cabeza;
-    int tamanio;
-    bool cerrada;
+    int tamanio; 
+    bool cerrada; //La jugada ya está completa
 };
 
 struct NodoTablero {
